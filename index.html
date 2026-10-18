@@ -1,611 +1,412 @@
 <!DOCTYPE html>
-<html lang="de" class="dark">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Apex Powerbuilding Tracker</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#0b0c10',
-                        cardBg: '#12141c',
-                        cardBorder: '#222634',
-                        accentYellow: '#f59e0b',
-                        accentBlue: '#3b82f6',
-                        accentGreen: '#10b981',
-                        accentRed: '#ef4444'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Tracker - Powerbuilding Dashboard</title>
     <style>
-        body {
-            background-color: #0b0c10;
-            color: #f3f4f6;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
+        :root {
+            --bg-color: #0f1115;
+            --card-bg: #181c24;
+            --accent: #f59e0b;
+            --accent-hover: #d97706;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border: #2d3748;
+            --success: #10b981;
         }
-        /* Mobile-first touch enhancements */
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .custom-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 12px; max-width: 600px; margin: 0 auto; padding-bottom: 90px; }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 12px; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-icon { background: var(--accent); color: #000; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 18px; }
+        .logo-text h1 { font-size: 16px; font-weight: 800; letter-spacing: 0.5px; }
+        .logo-text span { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+        
+        .controls-top { display: flex; gap: 8px; align-items: center; }
+        select, .btn-icon { background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border); padding: 8px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; outline: none; }
+        .btn-icon { background: var(--card-bg); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-icon:hover { border-color: var(--accent); }
+
+        /* Modal für 1RM Anpassung */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; }
+        .modal-content h3 { margin-bottom: 15px; font-size: 16px; color: var(--accent); }
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+        .input-group input { width: 100%; padding: 8px; background: var(--bg-color); border: 1px solid var(--border); color: var(--text-main); border-radius: 6px; font-size: 14px; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-primary { background: var(--accent); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; flex: 1; cursor: pointer; }
+        .btn-secondary { background: var(--border); color: var(--text-main); border: none; padding: 10px; border-radius: 8px; font-weight: bold; flex: 1; cursor: pointer; }
+
+        /* Fortschritt Accordion */
+        .progress-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; }
+        .progress-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--accent); }
+        .progress-body { margin-top: 10px; display: none; font-size: 12px; }
+        .progress-body.open { display: block; }
+        .bar-container { background: var(--bg-color); border-radius: 6px; height: 8px; margin: 6px 0 10px 0; overflow: hidden; border: 1px solid var(--border); }
+        .bar-fill { background: var(--accent); height: 100%; width: 0%; transition: width 0.5s ease; }
+
+        /* Tages-Navigation Tabs */
+        .day-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+        .day-tab { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); padding: 10px 4px; border-radius: 8px; font-size: 11px; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .day-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        /* Workout Sektion */
+        .workout-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .week-indicator { font-size: 11px; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 1px; margin-bottom: 4px; }
+        .workout-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+        /* Übungs-Karte */
+        .exercise-card { background: var(--bg-color); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+        .ex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .ex-name { font-size: 14px; font-weight: 700; }
+        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+        .badge.aesthetic { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        
+        .auto-target { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 6px; border-left: 3px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+        .auto-target span { color: var(--text-main); font-weight: bold; }
+
+        /* Set Zeilen */
+        .set-row { display: grid; grid-template-columns: 50px 1fr 1fr 40px; gap: 6px; align-items: center; margin-bottom: 6px; }
+        .set-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .set-input { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); padding: 6px; border-radius: 6px; text-align: center; font-size: 13px; width: 100%; outline: none; }
+        .set-input:focus { border-color: var(--accent); }
+        
+        .checkbox-container { display: flex; align-items: center; justify-content: center; }
+        .set-check { width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer; }
+
+        /* Timer Bar Unten */
+        .timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; max-width: 600px; margin: 0 auto; z-index: 99; }
+        .timer-display { font-size: 18px; font-weight: 800; font-family: monospace; color: var(--accent); }
+        .timer-btns { display: flex; gap: 6px; }
+        .t-btn { background: var(--bg-color); border: 1px solid var(--border); color: var(--text-main); padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .t-btn.start { background: var(--accent); color: #000; border: none; }
     </style>
 </head>
-<body class="pb-28 pt-2">
+<body>
 
-    <!-- Top Sticky Header -->
-    <header class="sticky top-0 z-30 bg-cardBg/95 backdrop-blur border-b border-cardBorder px-4 py-3 shadow-md">
-        <div class="max-w-md mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-black font-black text-lg shadow-lg">
-                    <i class="fa-solid fa-bolt"></i>
-                </div>
-                <div>
-                    <h1 class="font-black text-base text-white tracking-tight leading-none">APEX <span class="text-amber-400">TRACKER</span></h1>
-                    <span class="text-[10px] text-gray-400 font-medium tracking-wide">ZIEL: 140 / 130 / 200 / +50</span>
-                </div>
-            </div>
-
-            <div class="flex items-center space-x-2">
-                <!-- Week Selector Dropdown -->
-                <div class="relative">
-                    <select id="week-select" onchange="changeWeek(this.value)" class="bg-darkBg border border-cardBorder text-amber-400 font-bold text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-amber-400 appearance-none pr-6 cursor-pointer">
-                        <option value="1">Woche 1 (Akkumulation)</option>
-                        <option value="2">Woche 2 (Intensiver)</option>
-                        <option value="3">Woche 3 (Kraft Peak)</option>
-                        <option value="4">Woche 4 (Deload)</option>
-                        <option value="5">Woche 5 (Heavy Accum.)</option>
-                        <option value="6">Woche 6 (Heavy Peak)</option>
-                        <option value="7">Woche 7 (Singles/Doubles)</option>
-                        <option value="8">Woche 8 (TESTWOCHE PR!)</option>
-                    </select>
-                    <i class="fa-solid fa-chevron-down text-[10px] text-amber-400 absolute right-2 top-2.5 pointer-events-none"></i>
-                </div>
-                
-                <!-- Info Button -->
-                <button onclick="toggleModal('info-modal')" class="w-8 h-8 rounded-lg bg-cardBorder flex items-center justify-center text-gray-300 hover:text-white">
-                    <i class="fa-solid fa-circle-info text-sm"></i>
-                </button>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-area">
+            <div class="logo-icon">⚡</div>
+            <div class="logo-text">
+                <h1>APEX TRACKER</h1>
+                <span>Powerbuilding Pro</span>
             </div>
         </div>
-    </header>
+        <div class="controls-top">
+            <button class="btn-icon" onclick="openModal()" title="1RM Werte anpassen">⚙️</button>
+            <select id="weekSelect" onchange="changeWeek()">
+                <option value="1">Woche 1 (Akkumulation)</option>
+                <option value="2">Woche 2 (Intensiv)</option>
+                <option value="3">Woche 3 (Kraft Peak)</option>
+                <option value="4">Woche 4 (Deload)</option>
+                <option value="5">Woche 5 (Heavy Accum.)</option>
+                <option value="6">Woche 6 (Heavy Peak)</option>
+                <option value="7">Woche 7 (Singles/Doubles)</option>
+                <option value="8">Woche 8 (TESTWOCHE PR!)</option>
+            </select>
+        </div>
+    </div>
 
-    <!-- Main Mobile Container -->
-    <main class="max-w-md mx-auto px-3 mt-3 space-y-4">
-
-        <!-- Progress Overview Widget (Collapsible) -->
-        <div class="bg-cardBg border border-cardBorder rounded-2xl p-3.5 shadow-sm">
-            <div class="flex justify-between items-center cursor-pointer" onclick="toggleCollapse('progress-body')">
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-                    <i class="fa-solid fa-chart-line text-amber-400"></i> Fortschritt zu den Zielwerten
-                </span>
-                <i id="progress-body-icon" class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
+    <!-- Modal für 1RM Anpassung -->
+    <div id="rmModal" class="modal">
+        <div class="modal-content">
+            <h3>Zyklus & 1RM-Werte aktualisieren</h3>
+            <div class="input-group">
+                <label>Aktuelles 1RM Kniebeuge (Squat) in kg</label>
+                <input type="number" id="inputSquat" value="130">
             </div>
+            <div class="input-group">
+                <label>Aktuelles 1RM Bankdrücken (Bench) in kg</label>
+                <input type="number" id="inputBench" value="120">
+            </div>
+            <div class="input-group">
+                <label>Aktuelles 1RM Kreuzheben (Deadlift) in kg</label>
+                <input type="number" id="inputDeadlift" value="165">
+            </div>
+            <div class="input-group">
+                <label>Aktuelles Zusatzgewicht Pullup (max) in kg</label>
+                <input type="number" id="inputPullup" value="33">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal()">Abbrechen</button>
+                <button class="btn-primary" onclick="saveNewRMs()">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fortschritt Accordion -->
+    <div class="progress-box">
+        <div class="progress-header" onclick="toggleProgress()">
+            <span>📈 ZIEL-TRACKER (140 / 130 / 200 / +50)</span>
+            <span id="accordionArrow">▼</span>
+        </div>
+        <div class="progress-body" id="progressBody">
+            <div style="margin-top: 8px;">Squat (<span id="txtSquat">130</span>kg ➔ 140kg Ziel)</div>
+            <div class="bar-container"><div class="bar-fill" id="barSquat" style="width: 85%;"></div></div>
             
-            <div id="progress-body" class="mt-3 space-y-2.5 text-xs">
-                <!-- Squat -->
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-gray-300 font-semibold">Squat (110kgx6 &rarr; 140kg)</span>
-                        <span class="text-amber-400 font-bold" id="squat-prog-text">132 / 140 kg</span>
-                    </div>
-                    <div class="w-full bg-darkBg rounded-full h-2 border border-cardBorder">
-                        <div id="squat-bar" class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full transition-all duration-300" style="width: 94%"></div>
-                    </div>
-                </div>
-
-                <!-- Bench -->
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-gray-300 font-semibold">Bench (100kgx6 &rarr; 130kg)</span>
-                        <span class="text-amber-400 font-bold" id="bench-prog-text">120 / 130 kg</span>
-                    </div>
-                    <div class="w-full bg-darkBg rounded-full h-2 border border-cardBorder">
-                        <div id="bench-bar" class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full transition-all duration-300" style="width: 92%"></div>
-                    </div>
-                </div>
-
-                <!-- Deadlift -->
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-gray-300 font-semibold">Deadlift (140kgx6 &rarr; 200kg)</span>
-                        <span class="text-amber-400 font-bold" id="deadlift-prog-text">168 / 200 kg</span>
-                    </div>
-                    <div class="w-full bg-darkBg rounded-full h-2 border border-cardBorder">
-                        <div id="deadlift-bar" class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full transition-all duration-300" style="width: 84%"></div>
-                    </div>
-                </div>
-
-                <!-- Weighted Pullup -->
-                <div>
-                    <div class="flex justify-between mb-1">
-                        <span class="text-gray-300 font-semibold">Pullup (+30kgx3 &rarr; +50kg)</span>
-                        <span class="text-amber-400 font-bold" id="pullup-prog-text">+33.7 / +50 kg</span>
-                    </div>
-                    <div class="w-full bg-darkBg rounded-full h-2 border border-cardBorder">
-                        <div id="pullup-bar" class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full transition-all duration-300" style="width: 67%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Day Selector Tabs (Horizontal Scroll) -->
-        <div class="flex space-x-2 overflow-x-auto custom-scrollbar py-1">
-            <button onclick="switchDay('day1')" id="tab-day1" class="day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-amber-500 text-black font-extrabold text-xs text-center border border-amber-400 transition-all shadow">
-                Tag 1: Lower A
-            </button>
-            <button onclick="switchDay('day2')" id="tab-day2" class="day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-cardBg text-gray-400 font-bold text-xs text-center border border-cardBorder transition-all">
-                Tag 2: Upper A
-            </button>
-            <button onclick="switchDay('day3')" id="tab-day3" class="day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-cardBg text-gray-400 font-bold text-xs text-center border border-cardBorder transition-all">
-                Tag 3: Lower B
-            </button>
-            <button onclick="switchDay('day4')" id="tab-day4" class="day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-cardBg text-gray-400 font-bold text-xs text-center border border-cardBorder transition-all">
-                Tag 4: Upper B
-            </button>
-        </div>
-
-        <!-- WORKOUT CONTENT CONTAINER -->
-        <div id="workout-container" class="space-y-4">
-            <!-- Dynamic workout content rendered via JS -->
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="pt-2 flex gap-3">
-            <button onclick="saveCurrentWorkout()" class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-black py-3.5 px-4 rounded-xl shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-floppy-disk"></i> Training Speichern
-            </button>
-            <button onclick="resetCurrentDay()" class="bg-cardBg border border-cardBorder text-gray-400 font-semibold px-4 py-3.5 rounded-xl active:scale-95 transition">
-                <i class="fa-solid fa-rotate-right"></i>
-            </button>
-        </div>
-
-    </main>
-
-    <!-- Sticky Bottom Timer Bar -->
-    <div class="fixed bottom-0 left-0 right-0 z-40 bg-cardBg/95 backdrop-blur border-t border-cardBorder p-3 shadow-2xl">
-        <div class="max-w-md mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-darkBg border border-cardBorder flex items-center justify-center text-amber-400">
-                    <i class="fa-solid fa-stopwatch text-lg"></i>
-                </div>
-                <div>
-                    <span class="text-[10px] text-gray-400 uppercase font-bold block">Satzpause Timer</span>
-                    <span id="timer-display" class="font-mono text-xl font-black text-white">03:00</span>
-                </div>
-            </div>
-
-            <!-- Timer Action Buttons -->
-            <div class="flex items-center space-x-1.5">
-                <button onclick="setTimer(180)" class="px-2.5 py-1.5 rounded-lg bg-darkBg border border-cardBorder text-xs font-bold text-gray-300 hover:text-white active:bg-amber-500 active:text-black">3m</button>
-                <button onclick="setTimer(90)" class="px-2.5 py-1.5 rounded-lg bg-darkBg border border-cardBorder text-xs font-bold text-gray-300 hover:text-white active:bg-amber-500 active:text-black">1.5m</button>
-                <button onclick="toggleTimer()" id="timer-start-btn" class="px-4 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-black shadow transition active:scale-95">START</button>
-            </div>
+            <div>Bench (<span id="txtBench">120</span>kg ➔ 130kg Ziel)</div>
+            <div class="bar-container"><div class="bar-fill" id="barBench" style="width: 80%;"></div></div>
+            
+            <div>Deadlift (<span id="txtDeadlift">165</span>kg ➔ 200kg Ziel)</div>
+            <div class="bar-container"><div class="bar-fill" id="barDeadlift" style="width: 60%;"></div></div>
+            
+            <div>Pullup (+<span id="txtPullup">33</span>kg ➔ +50kg Ziel)</div>
+            <div class="bar-container"><div class="bar-fill" id="barPullup" style="width: 66%;"></div></div>
         </div>
     </div>
 
-    <!-- Info / Guide Modal -->
-    <div id="info-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-cardBg border border-cardBorder rounded-2xl max-w-sm w-full p-5 space-y-4 max-h-[85vh] overflow-y-auto custom-scrollbar">
-            <div class="flex justify-between items-center border-b border-cardBorder pb-3">
-                <h3 class="text-base font-black text-white flex items-center gap-2">
-                    <i class="fa-solid fa-book-open text-amber-400"></i> Periodisierung & RPE
-                </h3>
-                <button onclick="toggleModal('info-modal')" class="text-gray-400 hover:text-white text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
+    <!-- Tag Navigation -->
+    <div class="day-tabs">
+        <div class="day-tab active" onclick="switchDay(1)" id="tab1">Tag 1<br>Lower A</div>
+        <div class="day-tab" onclick="switchDay(2)" id="tab2">Tag 2<br>Upper A</div>
+        <div class="day-tab" onclick="switchDay(3)" id="tab3">Tag 3<br>Lower B</div>
+        <div class="day-tab" onclick="switchDay(4)" id="tab4">Tag 4<br>Upper B</div>
+    </div>
 
-            <div class="space-y-3 text-xs text-gray-300 leading-relaxed">
-                <p><strong class="text-amber-400">Wie funktionieren die Vorgaben?</strong><br>
-                Die App berechnet deine Gewichte für Main Lifts automatisch nach dem 8-Wochen-Zyklus. Nach Woche 8 testest du deine Zielwerte (140 / 130 / 200 / +50). Wenn geschafft, wählst du "Neuer Zyklus".</p>
-
-                <div class="bg-darkBg p-3 rounded-xl border border-cardBorder space-y-1">
-                    <span class="font-bold text-white block">RPE Skala Guide:</span>
-                    <div>• <strong>RPE 8:</strong> 2 Reps im Tank (Standard Kraft)</div>
-                    <div>• <strong>RPE 8.5:</strong> 1-2 Reps im Tank</div>
-                    <div>• <strong>RPE 9:</strong> 1 Rep im Tank (Peak)</div>
-                    <div>• <strong>RPE 10:</strong> Maximales Versagen / PR Versuch</div>
-                </div>
-
-                <p><strong class="text-amber-400">Ästhetik & Hypertrophie Focus:</strong><br>
-                Waden (4 Sätze), Seitliche Schulter (4 Sätze), Hintere Schulter (3 Sätze) und Latismus haben feste wöchentliche Slots, um optimales Muskelwachstum sicherzustellen.</p>
-            </div>
-
-            <button onclick="toggleModal('info-modal')" class="w-full bg-amber-500 text-black font-bold py-2.5 rounded-xl">Verstanden</button>
+    <!-- Workout Container -->
+    <div class="workout-container">
+        <div class="week-indicator" id="weekIndicatorDisplay">Woche 1: Akkumulation</div>
+        <div class="workout-title" id="workoutTitle">Tag 1: Kniebeuge & Posteriore Kette</div>
+        <div id="exerciseList">
+            <!-- Dynamisch gefüllt -->
         </div>
     </div>
 
-    <!-- Application JavaScript Logic -->
+    <!-- Timer Bar -->
+    <div class="timer-bar">
+        <div>
+            <div style="font-size: 10px; color: var(--text-muted);">SATZPAUSE TIMER</div>
+            <div class="timer-display" id="timerDisplay">03:00</div>
+        </div>
+        <div class="timer-btns">
+            <button class="t-btn" onclick="setTimer(90)">1.5m</button>
+            <button class="t-btn" onclick="setTimer(180)">3m</button>
+            <button class="t-btn" onclick="setTimer(300)">5m</button>
+            <button class="t-btn start" id="timerStartBtn" onclick="toggleTimer()">START</button>
+        </div>
+    </div>
+
     <script>
-        // BASE 1RM USER VALUES (Starting Point)
-        let userStats = {
-            squat1RM: 132,      // From 6x110kg
-            bench1RM: 120,      // From 6x100kg
-            deadlift1RM: 168,   // From 6x140kg
-            pullup1RM: 33.7     // From 3x30kg
+        // Speicher-Objekt & Initiale 1RMs
+        let userRMs = JSON.parse(localStorage.getItem('apex_rms')) || {
+            squat: 130,
+            bench: 120,
+            deadlift: 165,
+            pullup: 33
         };
 
-        // TARGET VALUES
-        const TARGETS = { squat: 140, bench: 130, deadlift: 200, pullup: 50 };
-
-        // 8-WEEK PERIODIZATION CONFIGURATION FOR MAIN LIFTS
-        // % of e1RM, Sets, Reps, RPE
-        const PERIODIZATION = {
-            1: { pct: 0.75, sets: 3, reps: 5, rpe: '7.5', label: 'Akkumulation' },
-            2: { pct: 0.775, sets: 3, reps: 5, rpe: '8.0', label: 'Intensivierung' },
-            3: { pct: 0.825, sets: 3, reps: 3, rpe: '8.5', label: 'Kraft Peak' },
-            4: { pct: 0.65, sets: 3, reps: 3, rpe: '6.0', label: 'Deload' },
-            5: { pct: 0.80, sets: 3, reps: 4, rpe: '8.0', label: 'Heavy Accumulation' },
-            6: { pct: 0.875, sets: 3, reps: 2, rpe: '9.0', label: 'Heavy Peak' },
-            7: { pct: 0.925, sets: 2, reps: 2, rpe: '9.5', label: 'Singles / Doubles' },
-            8: { pct: 1.00, sets: 1, reps: 1, rpe: '10.0', label: 'PR TESTWOCHE!' }
-        };
-
-        // WORKOUT PLAN STRUCTURE
-        const WORKOUT_PLAN = {
-            day1: {
-                title: "Tag 1: Lower A (Squat Heavy & Waden)",
-                exercises: [
-                    { id: "squat", name: "1. Kniebeuge (Squat)", isMain: true, statKey: "squat1RM" },
-                    { id: "rdl", name: "2. Romanian Deadlift (RDL)", sets: 3, defaultReps: "6-8", targetNote: "RPE 8" },
-                    { id: "legpress", name: "3. Beinpresse / Ausfallschritte", sets: 3, defaultReps: "10-12", targetNote: "RPE 8.5" },
-                    { id: "calves_standing", name: "4. Wadenheben stehend (Schwer)", sets: 4, defaultReps: "8-10", targetNote: "2s Hold oben", isAesthetic: true },
-                    { id: "abs1", name: "5. Hängendes Beinheben / Core", sets: 3, defaultReps: "12-15", targetNote: "Sauber" }
-                ]
-            },
-            day2: {
-                title: "Tag 2: Upper A (Bench & Pullup Heavy)",
-                exercises: [
-                    { id: "bench", name: "1. Bankdrücken (Bench Press)", isMain: true, statKey: "bench1RM" },
-                    { id: "pullup", name: "2. Klimmzug m. Zusatzgewicht", isMain: true, statKey: "pullup1RM" },
-                    { id: "incline_db", name: "3. Schrägbank KH-Drücken", sets: 3, defaultReps: "8-10", targetNote: "RPE 8" },
-                    { id: "lat_pulldown", name: "4. Latziehen Untergriff (Stretch Focus)", sets: 3, defaultReps: "10-12", targetNote: "RPE 8.5", isAesthetic: true },
-                    { id: "side_cable", name: "5. Seitheben am Kabelzug", sets: 4, defaultReps: "12-15", targetNote: "RPE 9 (Ästhetik)", isAesthetic: true },
-                    { id: "rear_flys", name: "6. Reverse Butterfly / Rear Delt Flys", sets: 3, defaultReps: "15-20", targetNote: "RPE 9", isAesthetic: true },
-                    { id: "biceps", name: "7. KH / Kabel Curls", sets: 3, defaultReps: "10-12", targetNote: "Pump" }
-                ]
-            },
-            day3: {
-                title: "Tag 3: Lower B (Deadlift Heavy & Waden)",
-                exercises: [
-                    { id: "deadlift", name: "1. Kreuzheben (Deadlift)", isMain: true, statKey: "deadlift1RM" },
-                    { id: "frontsquat", name: "2. Pause Squat / Frontsquat", sets: 3, defaultReps: "5-6", targetNote: "RPE 7.5" },
-                    { id: "leg_curl", name: "3. Beinbeuger liegend/sitzend", sets: 4, defaultReps: "10-12", targetNote: "RPE 8.5" },
-                    { id: "calves_seated", name: "4. Wadenheben sitzend", sets: 4, defaultReps: "12-15", targetNote: "Slow Eccentric", isAesthetic: true },
-                    { id: "hyper", name: "5. Rückenstrecker / Hyperextensions", sets: 3, defaultReps: "12-15", targetNote: "RPE 8" }
-                ]
-            },
-            day4: {
-                title: "Tag 4: Upper B (Bench Vol. & Lat/Schulter)",
-                exercises: [
-                    { id: "bench_volume", name: "1. Pause Bankdrücken (Variante)", isMain: true, statKey: "bench1RM", pctModifier: 0.9 },
-                    { id: "pullup_volume", name: "2. Klimmzüge (Moderat / BW)", sets: 4, defaultReps: "6-8", targetNote: "RPE 8", isAesthetic: true },
-                    { id: "ohp", name: "3. Schulterdrücken (OHP)", sets: 3, defaultReps: "8-10", targetNote: "RPE 8" },
-                    { id: "lat_pullover", name: "4. Kabel-Überzüge (Lat Pullover)", sets: 3, defaultReps: "12-15", targetNote: "RPE 9", isAesthetic: true },
-                    { id: "side_db", name: "5. KH Seitheben (Lean-Away)", sets: 4, defaultReps: "12-15", targetNote: "RPE 9.5", isAesthetic: true },
-                    { id: "facepulls", name: "6. Facepulls am Kabelzug", sets: 3, defaultReps: "15-20", targetNote: "Rear Delt", isAesthetic: true },
-                    { id: "triceps", name: "7. Trizeps Dips / Kabeldrücken", sets: 3, defaultReps: "10-12", targetNote: "Pump" }
-                ]
-            }
-        };
-
-        // STATE VARIABLES
-        let currentDay = 'day1';
+        let currentDay = 1;
         let currentWeek = 1;
-        let timerSeconds = 180;
-        let timerInterval = null;
-        let isTimerRunning = false;
-        let workoutLog = {};
 
-        // HELPER FUNCTIONS
-        function roundTo2_5(val) {
-            return Math.round(val / 2.5) * 2.5;
-        }
+        // Trainingspläne Datenstruktur
+        const workouts = {
+            1: { title: "Tag 1: Lower A (Squat Fokus & Waden)", exercises: [
+                { name: "Kniebeuge (Squat)", type: "main", rmKey: "squat", sets: 3, rpe: "7.5", basePercent: [0.75, 0.78, 0.80] },
+                { name: "Beinpresse / Hackenschmidt", type: "iso", sets: 3, reps: "8-10 Wdh", rpe: "RPE 9" },
+                { name: "Beinbeuger sitzend", type: "iso", sets: 3, reps: "10-12 Wdh", rpe: "RPE 9", aesthetic: true },
+                { name: "Stehendes Wadenheben", type: "iso", sets: 4, reps: "8-10 Wdh", rpe: "RPE 9.5", aesthetic: true }
+            ]},
+            2: { title: "Tag 2: Upper A (Bench Fokus & Lat/Schulter)", exercises: [
+                { name: "Bankdrücken (Bench Press)", type: "main", rmKey: "bench", sets: 3, rpe: "7.5", basePercent: [0.75, 0.78, 0.80] },
+                { name: "Klimmzüge (Zusatzgewicht)", type: "main", rmKey: "pullup", sets: 3, rpe: "8", basePercent: [0.70, 0.75, 0.75] },
+                { name: "Brustgestütztes Rudern", type: "iso", sets: 3, reps: "8-10 Wdh", rpe: "RPE 9", aesthetic: true },
+                { name: "Seitheben am Kabelzug", type: "iso", sets: 4, reps: "10-15 Wdh", rpe: "RPE 9.5", aesthetic: true },
+                { name: "Trizepsdrücken", type: "iso", sets: 3, reps: "10-12 Wdh", rpe: "RPE 9" }
+            ]},
+            3: { title: "Tag 3: Lower B (Deadlift Fokus & Hamstrings)", exercises: [
+                { name: "Kreuzheben (Deadlift)", type: "main", rmKey: "deadlift", sets: 3, rpe: "8", basePercent: [0.72, 0.76, 0.80] },
+                { name: "Bulgarian Split Squats", type: "iso", sets: 3, reps: "8-10 Wdh", rpe: "RPE 9" },
+                { name: "Beinstrecker", type: "iso", sets: 3, reps: "10-12 Wdh", rpe: "RPE 9" },
+                { name: "Stehendes Wadenheben", type: "iso", sets: 4, reps: "10-12 Wdh", rpe: "RPE 9.5", aesthetic: true }
+            ]},
+            4: { title: "Tag 4: Upper B (Paused Bench & Lat/Schulter)", exercises: [
+                { name: "Pause Bankdrücken (1-2s Stopp)", type: "main", rmKey: "bench", sets: 3, rpe: "7.5", basePercent: [0.70, 0.73, 0.75] },
+                { name: "Latzug enger Neutralgriff", type: "iso", sets: 3, reps: "8-10 Wdh", rpe: "RPE 9", aesthetic: true },
+                { name: "Hintere Schulter (Reverse Fly)", type: "iso", sets: 3, reps: "12-15 Wdh", rpe: "RPE 9.5", aesthetic: true },
+                { name: "Bizepscurls (Kabel / KH)", type: "iso", sets: 3, reps: "10-12 Wdh", rpe: "RPE 9", aesthetic: true },
+                { name: "Stehendes Wadenheben", type: "iso", sets: 3, reps: "12-15 Wdh", rpe: "RPE 9.5", aesthetic: true }
+            ]}
+        };
 
-        function toggleModal(id) {
-            document.getElementById(id).classList.toggle('hidden');
-        }
-
-        function toggleCollapse(id) {
-            const el = document.getElementById(id);
-            const icon = document.getElementById(`${id}-icon`);
-            el.classList.toggle('hidden');
-            if (icon) icon.classList.toggle('rotate-180');
-        }
-
-        function changeWeek(w) {
-            currentWeek = parseInt(w);
-            renderWorkout();
-        }
-
-        function switchDay(dayKey) {
-            currentDay = dayKey;
+        // UI Steuerung
+        function initApp() {
+            document.getElementById('inputSquat').value = userRMs.squat;
+            document.getElementById('inputBench').value = userRMs.bench;
+            document.getElementById('inputDeadlift').value = userRMs.deadlift;
+            document.getElementById('inputPullup').value = userRMs.pullup;
             
-            // Tab styling update
-            document.querySelectorAll('.day-tab').forEach(btn => {
-                btn.className = "day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-cardBg text-gray-400 font-bold text-xs text-center border border-cardBorder transition-all";
-            });
-            const activeBtn = document.getElementById(`tab-${dayKey}`);
-            if (activeBtn) {
-                activeBtn.className = "day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-amber-500 text-black font-extrabold text-xs text-center border border-amber-400 transition-all shadow";
-            }
-
+            updateProgressBars();
             renderWorkout();
         }
 
-        // TIMER SYSTEM
-        function updateTimerDisplay() {
-            const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
-            const s = (timerSeconds % 60).toString().padStart(2, '0');
-            document.getElementById('timer-display').innerText = `${m}:${s}`;
+        function updateProgressBars() {
+            document.getElementById('txtSquat').innerText = userRMs.squat;
+            document.getElementById('txtBench').innerText = userRMs.bench;
+            document.getElementById('txtDeadlift').innerText = userRMs.deadlift;
+            document.getElementById('txtPullup').innerText = userRMs.pullup;
+
+            document.getElementById('barSquat').style.width = Math.min(100, (userRMs.squat / 140) * 100) + '%';
+            document.getElementById('barBench').style.width = Math.min(100, (userRMs.bench / 130) * 100) + '%';
+            document.getElementById('barDeadlift').style.width = Math.min(100, (userRMs.deadlift / 200) * 100) + '%';
+            document.getElementById('barPullup').style.width = Math.min(100, (userRMs.pullup / 50) * 100) + '%';
         }
 
-        function setTimer(sec) {
+        function openModal() { document.getElementById('rmModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('rmModal').style.display = 'none'; }
+
+        function saveNewRMs() {
+            userRMs.squat = parseFloat(document.getElementById('inputSquat').value) || userRMs.squat;
+            userRMs.bench = parseFloat(document.getElementById('inputBench').value) || userRMs.bench;
+            userRMs.deadlift = parseFloat(document.getElementById('inputDeadlift').value) || userRMs.deadlift;
+            userRMs.pullup = parseFloat(document.getElementById('inputPullup').value) || userRMs.pullup;
+
+            localStorage.setItem('apex_rms', JSON.stringify(userRMs));
+            updateProgressBars();
+            closeModal();
+            renderWorkout();
+        }
+
+        function toggleProgress() {
+            const body = document.getElementById('progressBody');
+            const arrow = document.getElementById('accordionArrow');
+            body.classList.toggle('open');
+            arrow.innerText = body.classList.contains('open') ? '▲' : '▼';
+        }
+
+        function switchDay(day) {
+            currentDay = day;
+            document.querySelectorAll('.day-tab').forEach((el, idx) => {
+                el.classList.toggle('active', idx + 1 === day);
+            });
+            renderWorkout();
+        }
+
+        function changeWeek() {
+            currentWeek = parseInt(document.getElementById('weekSelect').value);
+            const weeksText = ["", "Woche 1: Akkumulation", "Woche 2: Intensiv", "Woche 3: Kraft Peak", "Woche 4: Deload", "Woche 5: Heavy Accum.", "Woche 6: Heavy Peak", "Woche 7: Singles/Doubles", "Woche 8: TESTWOCHE PR!"];
+            document.getElementById('weekIndicatorDisplay').innerText = weeksText[currentWeek];
+            renderWorkout();
+        }
+
+        function renderWorkout() {
+            const wData = workouts[currentDay];
+            document.getElementById('workoutTitle').innerText = wData.title;
+            const container = document.getElementById('exerciseList');
+            container.innerHTML = '';
+
+            // Multiplikator basierend auf Woche (Woche 4 ist Deload)
+            let weekMult = 1.0;
+            if (currentWeek === 2) weekMult = 1.03;
+            if (currentWeek === 3) weekMult = 1.06;
+            if (currentWeek === 4) weekMult = 0.80; // Deload
+            if (currentWeek === 5) weekMult = 1.04;
+            if (currentWeek === 6) weekMult = 1.08;
+            if (currentWeek === 7) weekMult = 1.12;
+            if (currentWeek === 8) weekMult = 1.15; // Testwoche
+
+            wData.exercises.forEach((ex, idx) => {
+                let card = document.createElement('div');
+                card.className = 'exercise-card';
+
+                let badgeHtml = ex.aesthetic ? `<span class="badge aesthetic">ÄSTHETIK</span>` : `<span class="badge">MAIN LIFT</span>`;
+                if (ex.type === 'iso' && !ex.aesthetic) badgeHtml = `<span class="badge">ASSISTENZ</span>`;
+
+                let targetHtml = '';
+                if (ex.type === 'main') {
+                    let baseVal = userRMs[ex.rmKey];
+                    let targetKg = Math.round((baseVal * ex.basePercent[0] * weekMult) / 2.5) * 2.5;
+                    targetHtml = `
+                        <div class="auto-target">
+                            <span>Vorgabe (Satz 1): <strong>${targetKg} kg</strong></span>
+                            <span>RPE ${ex.rpe}</span>
+                        </div>
+                    `;
+                } else {
+                    targetHtml = `
+                        <div class="auto-target">
+                            <span>Zielbereich: <strong>${ex.reps}</strong></span>
+                            <span>${ex.rpe}</span>
+                        </div>
+                    `;
+                }
+
+                let setsHtml = '';
+                for (let s = 1; s <= ex.sets; s++) {
+                    setsHtml += `
+                        <div class="set-row">
+                            <span class="set-label">Satz ${s}</span>
+                            <input type="number" class="set-input" placeholder="kg" id="d_${currentDay}_${idx}_s${s}_kg">
+                            <input type="number" class="set-input" placeholder="reps" id="d_${currentDay}_${idx}_s${s}_reps">
+                            <div class="checkbox-container">
+                                <input type="checkbox" class="set-check" onclick="triggerTimer(3)">
+                            </div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="ex-header">
+                        <span class="ex-name">${idx + 1}. ${ex.name}</span>
+                        ${badgeHtml}
+                    </div>
+                    ${targetHtml}
+                    ${setsHtml}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Timer Logik
+        let timerInterval = null;
+        let timeLeft = 180;
+
+        function setTimer(seconds) {
             clearInterval(timerInterval);
-            isTimerRunning = false;
-            timerSeconds = sec;
+            timeLeft = seconds;
             updateTimerDisplay();
-            document.getElementById('timer-start-btn').innerText = "START";
-            document.getElementById('timer-start-btn').className = "px-4 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-black shadow transition active:scale-95";
+            document.getElementById('timerStartBtn').innerText = "START";
+        }
+
+        function triggerTimer(minutes) {
+            setTimer(minutes * 60);
+            toggleTimer();
         }
 
         function toggleTimer() {
-            const btn = document.getElementById('timer-start-btn');
-            if (isTimerRunning) {
+            const btn = document.getElementById('timerStartBtn');
+            if (timerInterval) {
                 clearInterval(timerInterval);
-                isTimerRunning = false;
+                timerInterval = null;
                 btn.innerText = "START";
-                btn.className = "px-4 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-black shadow transition active:scale-95";
             } else {
-                isTimerRunning = true;
                 btn.innerText = "PAUSE";
-                btn.className = "px-4 py-1.5 rounded-lg bg-red-500 text-white text-xs font-black shadow transition active:scale-95";
-                
                 timerInterval = setInterval(() => {
-                    if (timerSeconds > 0) {
-                        timerSeconds--;
+                    if (timeLeft > 0) {
+                        timeLeft--;
                         updateTimerDisplay();
                     } else {
                         clearInterval(timerInterval);
-                        isTimerRunning = false;
+                        timerInterval = null;
                         btn.innerText = "START";
-                        btn.className = "px-4 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-black shadow transition active:scale-95";
-                        
-                        // Audio Beep
-                        try {
-                            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                            const osc = ctx.createOscillator();
-                            osc.frequency.value = 800;
-                            osc.connect(ctx.destination);
-                            osc.start();
-                            osc.stop(ctx.currentTime + 0.5);
-                        } catch(e) {}
+                        alert("Satzpause vorbei! Nächster Satz.");
                     }
                 }, 1000);
             }
         }
 
-        // RENDER WORKOUT CARD FOR SELECTED DAY
-        function renderWorkout() {
-            const container = document.getElementById('workout-container');
-            const dayData = WORKOUT_PLAN[currentDay];
-            const weekConfig = PERIODIZATION[currentWeek];
-
-            let html = `
-                <div class="bg-cardBg border border-cardBorder rounded-2xl p-4 shadow-sm space-y-4">
-                    <div class="flex justify-between items-start border-b border-cardBorder pb-3">
-                        <div>
-                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-400">Woche ${currentWeek}: ${weekConfig.label}</span>
-                            <h2 class="text-base font-black text-white">${dayData.title}</h2>
-                        </div>
-                    </div>
-            `;
-
-            // Iterate exercises
-            dayData.exercises.forEach((ex) => {
-                const isAestheticTag = ex.isAesthetic ? `<span class="ml-1 text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded uppercase font-bold">Ästhetik</span>` : '';
-                
-                html += `
-                    <div class="bg-darkBg border border-cardBorder rounded-xl p-3 space-y-2.5">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-xs font-bold text-white flex items-center">${ex.name} ${isAestheticTag}</h3>
-                        </div>
-                `;
-
-                if (ex.isMain) {
-                    // MAIN LIFTS: AUTOMATIC WEIGHT CALCULATION
-                    const base1RM = userStats[ex.statKey];
-                    let calcPct = weekConfig.pct;
-                    if (ex.pctModifier) calcPct *= ex.pctModifier;
-
-                    const targetWeight = roundTo2_5(base1RM * calcPct);
-                    const targetSets = weekConfig.sets;
-                    const targetReps = weekConfig.reps;
-
-                    html += `
-                        <div class="bg-cardBg p-2 rounded-lg border border-cardBorder/60 flex justify-between items-center text-xs">
-                            <span class="text-gray-400">Automatische Vorgabe:</span>
-                            <span class="font-black text-amber-400 text-sm">${targetWeight} kg &times; ${targetReps} Reps</span>
-                            <span class="text-[10px] bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded font-mono">RPE ${weekConfig.rpe}</span>
-                        </div>
-                        <div class="space-y-1.5 pt-1">
-                    `;
-
-                    // Generate slots for each set
-                    for (let s = 1; s <= targetSets; s++) {
-                        const savedKey = `w${currentWeek}_${currentDay}_${ex.id}_s${s}`;
-                        const savedVal = workoutLog[savedKey] || { weight: targetWeight, reps: targetReps, done: false };
-
-                        html += `
-                            <div class="flex items-center gap-2 text-xs">
-                                <span class="text-gray-400 font-mono w-10">Satz ${s}</span>
-                                <div class="flex-1 flex items-center gap-1.5">
-                                    <input type="number" step="0.5" id="${savedKey}_w" value="${savedVal.weight}" onchange="updateLog('${savedKey}')" class="w-16 bg-cardBg border border-cardBorder rounded-lg py-1 px-2 text-center text-white font-mono font-bold focus:border-amber-400 outline-none">
-                                    <span class="text-gray-500">kg</span>
-                                    <input type="number" id="${savedKey}_r" value="${savedVal.reps}" onchange="updateLog('${savedKey}')" class="w-12 bg-cardBg border border-cardBorder rounded-lg py-1 px-2 text-center text-white font-mono font-bold focus:border-amber-400 outline-none">
-                                    <span class="text-gray-500">reps</span>
-                                </div>
-                                <button onclick="toggleSetDone('${savedKey}')" id="btn_${savedKey}" class="w-8 h-8 rounded-lg ${savedVal.done ? 'bg-emerald-500 text-black' : 'bg-cardBg border border-cardBorder text-gray-500'} flex items-center justify-center transition active:scale-95">
-                                    <i class="fa-solid fa-check text-xs"></i>
-                                </button>
-                            </div>
-                        `;
-                    }
-
-                    html += `</div>`;
-
-                } else {
-                    // ASSISTANCE & HYPERTROPHY EXERCISES
-                    const numSets = ex.sets || 3;
-                    html += `
-                        <div class="flex justify-between items-center text-[11px] text-gray-400 pb-1">
-                            <span>Ziel: ${numSets} Sätze &times; ${ex.defaultReps} Reps</span>
-                            <span class="text-amber-400 font-semibold">${ex.targetNote}</span>
-                        </div>
-                        <div class="space-y-1.5">
-                    `;
-
-                    for (let s = 1; s <= numSets; s++) {
-                        const savedKey = `w${currentWeek}_${currentDay}_${ex.id}_s${s}`;
-                        const savedVal = workoutLog[savedKey] || { weight: '', reps: '', done: false };
-
-                        html += `
-                            <div class="flex items-center gap-2 text-xs">
-                                <span class="text-gray-400 font-mono w-10">Satz ${s}</span>
-                                <div class="flex-1 flex items-center gap-1.5">
-                                    <input type="number" placeholder="kg" id="${savedKey}_w" value="${savedVal.weight}" onchange="updateLog('${savedKey}')" class="w-16 bg-cardBg border border-cardBorder rounded-lg py-1 px-2 text-center text-white font-mono font-bold focus:border-amber-400 outline-none placeholder:text-gray-600">
-                                    <span class="text-gray-500">kg</span>
-                                    <input type="number" placeholder="reps" id="${savedKey}_r" value="${savedVal.reps}" onchange="updateLog('${savedKey}')" class="w-12 bg-cardBg border border-cardBorder rounded-lg py-1 px-2 text-center text-white font-mono font-bold focus:border-amber-400 outline-none placeholder:text-gray-600">
-                                    <span class="text-gray-500">reps</span>
-                                </div>
-                                <button onclick="toggleSetDone('${savedKey}')" id="btn_${savedKey}" class="w-8 h-8 rounded-lg ${savedVal.done ? 'bg-emerald-500 text-black' : 'bg-cardBg border border-cardBorder text-gray-500'} flex items-center justify-center transition active:scale-95">
-                                    <i class="fa-solid fa-check text-xs"></i>
-                                </button>
-                            </div>
-                        `;
-                    }
-
-                    html += `</div>`;
-                }
-
-                html += `</div>`;
-            });
-
-            html += `</div>`;
-            container.innerHTML = html;
+        function updateTimerDisplay() {
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            document.getElementById('timerDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
-        // LOGGING UPDATES & LOCALSTORAGE
-        function updateLog(key) {
-            const wInput = document.getElementById(`${key}_w`);
-            const rInput = document.getElementById(`${key}_r`);
-            
-            if (!workoutLog[key]) workoutLog[key] = {};
-            if (wInput) workoutLog[key].weight = wInput.value;
-            if (rInput) workoutLog[key].reps = rInput.value;
-
-            saveToLocalStorage();
-        }
-
-        function toggleSetDone(key) {
-            if (!workoutLog[key]) workoutLog[key] = {};
-            workoutLog[key].done = !workoutLog[key].done;
-
-            // Also capture inputs
-            const wInput = document.getElementById(`${key}_w`);
-            const rInput = document.getElementById(`${key}_r`);
-            if (wInput) workoutLog[key].weight = wInput.value;
-            if (rInput) workoutLog[key].reps = rInput.value;
-
-            // UI Update
-            const btn = document.getElementById(`btn_${key}`);
-            if (btn) {
-                if (workoutLog[key].done) {
-                    btn.className = "w-8 h-8 rounded-lg bg-emerald-500 text-black flex items-center justify-center transition active:scale-95";
-                    // Auto trigger 90s timer for isos, 180s for mains
-                    if (key.includes('squat') || key.includes('bench') || key.includes('deadlift') || key.includes('pullup')) {
-                        setTimer(180);
-                    } else {
-                        setTimer(90);
-                    }
-                    toggleTimer();
-                } else {
-                    btn.className = "w-8 h-8 rounded-lg bg-cardBg border border-cardBorder text-gray-500 flex items-center justify-center transition active:scale-95";
-                }
-            }
-
-            saveToLocalStorage();
-        }
-
-        function saveCurrentWorkout() {
-            saveToLocalStorage();
-            alert("Training erfolgreich gespeichert!");
-        }
-
-        function resetCurrentDay() {
-            if (confirm("Möchtest du alle eingetragenen Sätze für diesen Tag zurücksetzen?")) {
-                const dayData = WORKOUT_PLAN[currentDay];
-                dayData.exercises.forEach(ex => {
-                    for (let s = 1; s <= 6; s++) {
-                        const key = `w${currentWeek}_${currentDay}_${ex.id}_s${s}`;
-                        delete workoutLog[key];
-                    }
-                });
-                saveToLocalStorage();
-                renderWorkout();
-            }
-        }
-
-        function saveToLocalStorage() {
-            localStorage.setItem('apex_powerbuilding_log', JSON.stringify(workoutLog));
-            localStorage.setItem('apex_user_stats', JSON.stringify(userStats));
-            localStorage.setItem('apex_current_week', currentWeek);
-        }
-
-        function loadFromLocalStorage() {
-            const savedLog = localStorage.getItem('apex_powerbuilding_log');
-            if (savedLog) workoutLog = JSON.parse(savedLog);
-
-            const savedStats = localStorage.getItem('apex_user_stats');
-            if (savedStats) userStats = JSON.parse(savedStats);
-
-            const savedWeek = localStorage.getItem('apex_current_week');
-            if (savedWeek) {
-                currentWeek = parseInt(savedWeek);
-                document.getElementById('week-select').value = currentWeek;
-            }
-        }
-
-        // INITIALIZATION
-        window.onload = function() {
-            loadFromLocalStorage();
-            renderWorkout();
-            updateTimerDisplay();
-        };
+        // Start Init
+        initApp();
     </script>
 </body>
 </html>
