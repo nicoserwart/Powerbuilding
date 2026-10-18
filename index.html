@@ -172,9 +172,7 @@
     <div class="workout-container">
         <div class="week-indicator" id="weekIndicatorDisplay">Woche 1: Akkumulation</div>
         <div class="workout-title" id="workoutTitle">Tag 1: Kniebeuge & Posteriore Kette</div>
-        <div id="exerciseList">
-            <!-- Dynamisch gefüllt -->
-        </div>
+        <div id="exerciseList"></div>
     </div>
 
     <!-- Timer Bar -->
@@ -192,7 +190,6 @@
     </div>
 
     <script>
-        // Speicher-Objekt & Initiale 1RMs
         let userRMs = JSON.parse(localStorage.getItem('apex_rms')) || {
             squat: 130,
             bench: 120,
@@ -203,7 +200,6 @@
         let currentDay = 1;
         let currentWeek = 1;
 
-        // Trainingspläne Datenstruktur
         const workouts = {
             1: { title: "Tag 1: Lower A (Squat Fokus & Waden)", exercises: [
                 { name: "Kniebeuge (Squat)", type: "main", rmKey: "squat", sets: 3, rpe: "7.5", basePercent: [0.75, 0.78, 0.80] },
@@ -233,13 +229,11 @@
             ]}
         };
 
-        // UI Steuerung
         function initApp() {
             document.getElementById('inputSquat').value = userRMs.squat;
             document.getElementById('inputBench').value = userRMs.bench;
             document.getElementById('inputDeadlift').value = userRMs.deadlift;
             document.getElementById('inputPullup').value = userRMs.pullup;
-            
             updateProgressBars();
             renderWorkout();
         }
@@ -249,7 +243,6 @@
             document.getElementById('txtBench').innerText = userRMs.bench;
             document.getElementById('txtDeadlift').innerText = userRMs.deadlift;
             document.getElementById('txtPullup').innerText = userRMs.pullup;
-
             document.getElementById('barSquat').style.width = Math.min(100, (userRMs.squat / 140) * 100) + '%';
             document.getElementById('barBench').style.width = Math.min(100, (userRMs.bench / 130) * 100) + '%';
             document.getElementById('barDeadlift').style.width = Math.min(100, (userRMs.deadlift / 200) * 100) + '%';
@@ -264,7 +257,6 @@
             userRMs.bench = parseFloat(document.getElementById('inputBench').value) || userRMs.bench;
             userRMs.deadlift = parseFloat(document.getElementById('inputDeadlift').value) || userRMs.deadlift;
             userRMs.pullup = parseFloat(document.getElementById('inputPullup').value) || userRMs.pullup;
-
             localStorage.setItem('apex_rms', JSON.stringify(userRMs));
             updateProgressBars();
             closeModal();
@@ -299,15 +291,14 @@
             const container = document.getElementById('exerciseList');
             container.innerHTML = '';
 
-            // Multiplikator basierend auf Woche (Woche 4 ist Deload)
             let weekMult = 1.0;
             if (currentWeek === 2) weekMult = 1.03;
             if (currentWeek === 3) weekMult = 1.06;
-            if (currentWeek === 4) weekMult = 0.80; // Deload
+            if (currentWeek === 4) weekMult = 0.80;
             if (currentWeek === 5) weekMult = 1.04;
             if (currentWeek === 6) weekMult = 1.08;
             if (currentWeek === 7) weekMult = 1.12;
-            if (currentWeek === 8) weekMult = 1.15; // Testwoche
+            if (currentWeek === 8) weekMult = 1.15;
 
             wData.exercises.forEach((ex, idx) => {
                 let card = document.createElement('div');
@@ -320,19 +311,9 @@
                 if (ex.type === 'main') {
                     let baseVal = userRMs[ex.rmKey];
                     let targetKg = Math.round((baseVal * ex.basePercent[0] * weekMult) / 2.5) * 2.5;
-                    targetHtml = `
-                        <div class="auto-target">
-                            <span>Vorgabe (Satz 1): <strong>${targetKg} kg</strong></span>
-                            <span>RPE ${ex.rpe}</span>
-                        </div>
-                    `;
+                    targetHtml = `<div class="auto-target"><span>Vorgabe (Satz 1): <strong>${targetKg} kg</strong></span><span>RPE ${ex.rpe}</span></div>`;
                 } else {
-                    targetHtml = `
-                        <div class="auto-target">
-                            <span>Zielbereich: <strong>${ex.reps}</strong></span>
-                            <span>${ex.rpe}</span>
-                        </div>
-                    `;
+                    targetHtml = `<div class="auto-target"><span>Zielbereich: <strong>${ex.reps}</strong></span><span>${ex.rpe}</span></div>`;
                 }
 
                 let setsHtml = '';
@@ -340,8 +321,8 @@
                     setsHtml += `
                         <div class="set-row">
                             <span class="set-label">Satz ${s}</span>
-                            <input type="number" class="set-input" placeholder="kg" id="d_${currentDay}_${idx}_s${s}_kg">
-                            <input type="number" class="set-input" placeholder="reps" id="d_${currentDay}_${idx}_s${s}_reps">
+                            <input type="number" class="set-input" placeholder="kg">
+                            <input type="number" class="set-input" placeholder="reps">
                             <div class="checkbox-container">
                                 <input type="checkbox" class="set-check" onclick="triggerTimer(3)">
                             </div>
@@ -349,19 +330,11 @@
                     `;
                 }
 
-                card.innerHTML = `
-                    <div class="ex-header">
-                        <span class="ex-name">${idx + 1}. ${ex.name}</span>
-                        ${badgeHtml}
-                    </div>
-                    ${targetHtml}
-                    ${setsHtml}
-                `;
+                card.innerHTML = `<div class="ex-header"><span class="ex-name">${idx + 1}. ${ex.name}</span>${badgeHtml}</div>${targetHtml}${setsHtml}`;
                 container.appendChild(card);
             });
         }
 
-        // Timer Logik
         let timerInterval = null;
         let timeLeft = 180;
 
@@ -405,7 +378,6 @@
             document.getElementById('timerDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
-        // Start Init
         initApp();
     </script>
 </body>
