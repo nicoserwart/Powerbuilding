@@ -2,8 +2,8 @@
 <html lang="de" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Powerbuilding Target Dashboard (140/130/200/50)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Apex Powerbuilding Tracker</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,20 +12,16 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#fff1f2',
-                            500: '#f43f5e',
-                            600: '#e11d48',
-                            700: '#be123c',
-                            accent: '#ff3b00',
-                            accentHover: '#e03400',
-                            darkBg: '#0f1015',
-                            cardBg: '#181a20',
-                            borderBg: '#2a2d37'
-                        }
+                        darkBg: '#0b0c10',
+                        cardBg: '#12141c',
+                        cardBorder: '#222634',
+                        accentYellow: '#f59e0b',
+                        accentBlue: '#3b82f6',
+                        accentGreen: '#10b981',
+                        accentRed: '#ef4444'
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif']
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
                     }
                 }
             }
@@ -33,994 +29,582 @@
     </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f1015;
+            background-color: #0b0c10;
             color: #f3f4f6;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Mobile-first touch enhancements */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
         .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            display: none;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #181a20;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #2a2d37;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #ff3b00;
-        }
-        .glow-accent {
-            box-shadow: 0 0 15px rgba(255, 59, 0, 0.25);
+        .custom-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-brand-darkBg text-gray-100">
+<body class="pb-28 pt-2">
 
-    <!-- Top Navigation Header -->
-    <header class="border-b border-brand-borderBg bg-brand-cardBg/80 backdrop-blur sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-brand-accent p-2 rounded-lg text-white font-black text-xl tracking-wider">
-                    <i class="fa-solid font-bold fa-dumbbell"></i>
+    <!-- Top Sticky Header -->
+    <header class="sticky top-0 z-30 bg-cardBg/95 backdrop-blur border-b border-cardBorder px-4 py-3 shadow-md">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-black font-black text-lg shadow-lg">
+                    <i class="fa-solid fa-bolt"></i>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
-                        APEX <span class="text-brand-accent">POWERBUILDING</span>
-                    </h1>
-                    <p class="text-xs text-gray-400 hidden sm:block">Ziel: 140kg Squat | 130kg Bench | 200kg Deadlift | 50kg Pullup</p>
+                    <h1 class="font-black text-base text-white tracking-tight leading-none">APEX <span class="text-amber-400">TRACKER</span></h1>
+                    <span class="text-[10px] text-gray-400 font-medium tracking-wide">ZIEL: 140 / 130 / 200 / +50</span>
                 </div>
             </div>
 
-            <div class="flex items-center space-x-2 sm:space-x-4">
-                <!-- Quick Rest Timer Widget -->
-                <div class="flex items-center bg-brand-darkBg px-3 py-1.5 rounded-lg border border-brand-borderBg text-sm">
-                    <i class="fa-solid fa-stopwatch text-brand-accent mr-2 animate-pulse"></i>
-                    <span id="nav-timer-display" class="font-mono font-bold text-gray-200">00:00</span>
-                    <button id="nav-timer-btn" onclick="toggleTimer()" class="ml-2 text-xs bg-brand-borderBg hover:bg-brand-accent hover:text-white px-2 py-0.5 rounded transition">
-                        Start
-                    </button>
-                    <button onclick="resetTimer()" class="ml-1 text-xs text-gray-400 hover:text-white">
-                        <i class="fa-solid fa-rotate-right"></i>
-                    </button>
+            <div class="flex items-center space-x-2">
+                <!-- Week Selector Dropdown -->
+                <div class="relative">
+                    <select id="week-select" onchange="changeWeek(this.value)" class="bg-darkBg border border-cardBorder text-amber-400 font-bold text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-amber-400 appearance-none pr-6 cursor-pointer">
+                        <option value="1">Woche 1 (Akkumulation)</option>
+                        <option value="2">Woche 2 (Intensiver)</option>
+                        <option value="3">Woche 3 (Kraft Peak)</option>
+                        <option value="4">Woche 4 (Deload)</option>
+                        <option value="5">Woche 5 (Heavy Accum.)</option>
+                        <option value="6">Woche 6 (Heavy Peak)</option>
+                        <option value="7">Woche 7 (Singles/Doubles)</option>
+                        <option value="8">Woche 8 (TESTWOCHE PR!)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-amber-400 absolute right-2 top-2.5 pointer-events-none"></i>
                 </div>
+                
+                <!-- Info Button -->
+                <button onclick="toggleModal('info-modal')" class="w-8 h-8 rounded-lg bg-cardBorder flex items-center justify-center text-gray-300 hover:text-white">
+                    <i class="fa-solid fa-circle-info text-sm"></i>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    <!-- Main Mobile Container -->
+    <main class="max-w-md mx-auto px-3 mt-3 space-y-4">
 
-        <!-- Banner / Status Summary -->
-        <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Squat Target -->
-            <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-brand-accent/50 transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kniebeuge (Squat)</span>
-                        <h3 class="text-2xl font-black text-white mt-1" id="stat-squat-1rm">132 kg <span class="text-xs font-normal text-gray-400">(Est. 1RM)</span></h3>
-                    </div>
-                    <span class="p-2 bg-blue-500/10 text-blue-400 rounded-lg text-lg"><i class="fa-solid fa-person-praying"></i></span>
-                </div>
-                <div class="mt-4">
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-gray-400">Aktuell: 6x110kg</span>
-                        <span class="text-brand-accent font-bold">Ziel: 140 kg 1RM</span>
-                    </div>
-                    <div class="w-full bg-brand-darkBg rounded-full h-2">
-                        <div id="bar-squat" class="bg-brand-accent h-2 rounded-full transition-all duration-500" style="width: 94%"></div>
-                    </div>
-                </div>
+        <!-- Progress Overview Widget (Collapsible) -->
+        <div class="bg-cardBg border border-cardBorder rounded-2xl p-3.5 shadow-sm">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleCollapse('progress-body')">
+                <span class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-line text-amber-400"></i> Fortschritt zu den Zielwerten
+                </span>
+                <i id="progress-body-icon" class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform"></i>
             </div>
-
-            <!-- Bench Target -->
-            <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-brand-accent/50 transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Bankdrücken (Bench)</span>
-                        <h3 class="text-2xl font-black text-white mt-1" id="stat-bench-1rm">118 kg <span class="text-xs font-normal text-gray-400">(Est. 1RM)</span></h3>
-                    </div>
-                    <span class="p-2 bg-red-500/10 text-red-400 rounded-lg text-lg"><i class="fa-solid fa-dumbbell"></i></span>
-                </div>
-                <div class="mt-4">
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-gray-400">Aktuell: 6x100kg</span>
-                        <span class="text-brand-accent font-bold">Ziel: 130 kg 1RM</span>
-                    </div>
-                    <div class="w-full bg-brand-darkBg rounded-full h-2">
-                        <div id="bar-bench" class="bg-brand-accent h-2 rounded-full transition-all duration-500" style="width: 90%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Deadlift Target -->
-            <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-brand-accent/50 transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kreuzheben (Deadlift)</span>
-                        <h3 class="text-2xl font-black text-white mt-1" id="stat-deadlift-1rm">165 kg <span class="text-xs font-normal text-gray-400">(Est. 1RM)</span></h3>
-                    </div>
-                    <span class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg text-lg"><i class="fa-solid fa-weight-hanging"></i></span>
-                </div>
-                <div class="mt-4">
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-gray-400">Aktuell: 6x140kg</span>
-                        <span class="text-brand-accent font-bold">Ziel: 200 kg 1RM</span>
-                    </div>
-                    <div class="w-full bg-brand-darkBg rounded-full h-2">
-                        <div id="bar-deadlift" class="bg-brand-accent h-2 rounded-full transition-all duration-500" style="width: 82%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Weighted Pullup Target -->
-            <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl p-4 flex flex-col justify-between relative overflow-hidden group hover:border-brand-accent/50 transition">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Klimmzug (Zusatzgewicht)</span>
-                        <h3 class="text-2xl font-black text-white mt-1" id="stat-pullup-1rm">+33 kg <span class="text-xs font-normal text-gray-400">(Est. 1RM)</span></h3>
-                    </div>
-                    <span class="p-2 bg-amber-500/10 text-amber-400 rounded-lg text-lg"><i class="fa-solid fa-child"></i></span>
-                </div>
-                <div class="mt-4">
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-gray-400">Aktuell: 3x30kg</span>
-                        <span class="text-brand-accent font-bold">Ziel: +50 kg 1RM</span>
-                    </div>
-                    <div class="w-full bg-brand-darkBg rounded-full h-2">
-                        <div id="bar-pullup" class="bg-brand-accent h-2 rounded-full transition-all duration-500" style="width: 66%"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Navigation Tabs -->
-        <div class="border-b border-brand-borderBg flex space-x-6 overflow-x-auto custom-scrollbar">
-            <button onclick="switchTab('plan')" id="tab-btn-plan" class="tab-btn border-b-2 border-brand-accent text-brand-accent font-bold pb-3 px-1 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-calendar-days"></i> 4-Tage Trainingsplan
-            </button>
-            <button onclick="switchTab('calc')" id="tab-btn-calc" class="tab-btn border-b-2 border-transparent text-gray-400 hover:text-white font-medium pb-3 px-1 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-calculator"></i> 1RM Rechner & Ziele
-            </button>
-            <button onclick="switchTab('periodization')" id="tab-btn-periodization" class="tab-btn border-b-2 border-transparent text-gray-400 hover:text-white font-medium pb-3 px-1 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-chart-line"></i> Periodisierung & Progression
-            </button>
-            <button onclick="switchTab('glossary')" id="tab-btn-glossary" class="tab-btn border-b-2 border-transparent text-gray-400 hover:text-white font-medium pb-3 px-1 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-book"></i> Fachbegriffe & FAQ
-            </button>
-        </div>
-
-        <!-- TAB 1: 4-DAY WORKOUT PLAN -->
-        <div id="tab-content-plan" class="tab-content space-y-6">
             
-            <!-- Plan Header Info & Filters -->
-            <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div id="progress-body" class="mt-3 space-y-2.5 text-xs">
+                <!-- Squat -->
                 <div>
-                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        <span>Upper / Lower Powerbuilding Split</span>
-                        <span class="text-xs bg-brand-accent/20 text-brand-accent border border-brand-accent/40 px-2 py-0.5 rounded-full uppercase">Optimal für Kraft & Hypertrophie</span>
-                    </h2>
-                    <p class="text-sm text-gray-400 mt-1">
-                        4 Tage/Woche. Frequenz 2x pro Woche für Hauptübungen + fokussiertes Ästhetik-Volumen (Waden, Seit/Hintere Schulter, Lat).
-                    </p>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="setWeekBlock(1)" id="block-btn-1" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-accent text-white transition">Block W1-2 (Akkumulation)</button>
-                    <button onclick="setWeekBlock(3)" id="block-btn-3" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-darkBg text-gray-400 border border-brand-borderBg hover:text-white transition">Block W3-4 (Intensivierung)</button>
-                    <button onclick="setWeekBlock(5)" id="block-btn-5" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-darkBg text-gray-400 border border-brand-borderBg hover:text-white transition">Woche 5 (Deload)</button>
-                </div>
-            </div>
-
-            <!-- Days Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                <!-- DAY 1: UPPER A (BENCH & HEAVY PULLUP) -->
-                <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl overflow-hidden flex flex-col">
-                    <div class="bg-gradient-to-r from-brand-cardBg to-brand-borderBg/50 p-4 border-b border-brand-borderBg flex justify-between items-center">
-                        <div>
-                            <span class="text-xs font-bold text-brand-accent tracking-wider uppercase">Tag 1 - Montag</span>
-                            <h3 class="text-lg font-bold text-white">Oberkörper A (Bench Press & Heavy Pullup)</h3>
-                        </div>
-                        <span class="text-xs bg-brand-darkBg px-2.5 py-1 rounded border border-brand-borderBg text-gray-300">Fokus: Max Strength + Lat/Schulter</span>
+                    <div class="flex justify-between mb-1">
+                        <span class="text-gray-300 font-semibold">Squat (110kgx6 &rarr; 140kg)</span>
+                        <span class="text-amber-400 font-bold" id="squat-prog-text">132 / 140 kg</span>
                     </div>
-                    <div class="p-4 flex-grow space-y-4">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
-                                <thead>
-                                    <tr class="text-xs text-gray-400 border-b border-brand-borderBg/60 uppercase">
-                                        <th class="pb-2 font-medium">Übung</th>
-                                        <th class="pb-2 font-medium">Sätze</th>
-                                        <th class="pb-2 font-medium">Reps</th>
-                                        <th class="pb-2 font-medium">RPE / %</th>
-                                        <th class="pb-2 font-medium">Pause</th>
-                                        <th class="pb-2 font-medium text-center">Done</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-brand-borderBg/30 text-gray-200">
-                                    <!-- Ex 1 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5 font-semibold text-white">1. Bankdrücken (Bench Press)</td>
-                                        <td>4</td>
-                                        <td class="font-mono text-brand-accent font-bold main-rep-display">4-5</td>
-                                        <td><span class="bg-red-500/20 text-red-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8-8.5</span></td>
-                                        <td class="text-xs text-gray-400">3-4 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 2 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5 font-semibold text-white">2. Klimmzug m. Zusatzgewicht</td>
-                                        <td>4</td>
-                                        <td class="font-mono text-brand-accent font-bold main-rep-display">3-4</td>
-                                        <td><span class="bg-red-500/20 text-red-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8-9</span></td>
-                                        <td class="text-xs text-gray-400">3 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 3 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5">3. Schrägbank Kh-Drücken</td>
-                                        <td>3</td>
-                                        <td>8-10</td>
-                                        <td><span class="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8</span></td>
-                                        <td class="text-xs text-gray-400">2 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 4 (Lat Hypertrophy) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition bg-brand-accent/5">
-                                        <td class="py-2.5 text-brand-accent font-medium">4. Latziehen im Untergriff (Full Stretch) <i class="fa-solid fa-sparkles text-xs"></i></td>
-                                        <td>3</td>
-                                        <td>10-12</td>
-                                        <td><span class="bg-emerald-500/20 text-emerald-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8.5</span></td>
-                                        <td class="text-xs text-gray-400">1.5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 5 (Seitliche Schulter) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition bg-brand-accent/5">
-                                        <td class="py-2.5 text-brand-accent font-medium">5. Seitheben am Kabelzug (Cable Lateral Raise)</td>
-                                        <td>4</td>
-                                        <td>12-15</td>
-                                        <td><span class="bg-purple-500/20 text-purple-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 9</span></td>
-                                        <td class="text-xs text-gray-400">1.5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 6 (Hintere Schulter) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition bg-brand-accent/5">
-                                        <td class="py-2.5 text-brand-accent font-medium">6. Facepulls am Kabelzug (Rear Delt Focus)</td>
-                                        <td>3</td>
-                                        <td>15-20</td>
-                                        <td><span class="bg-purple-500/20 text-purple-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 9</span></td>
-                                        <td class="text-xs text-gray-400">1 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="w-full bg-darkBg rounded-full h-2 border border-cardBorder">
+                        <div id="squat-bar" class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full transition-all duration-300" style="width: 94%"></div>
                     </div>
                 </div>
 
-                <!-- DAY 2: LOWER A (SQUAT HEAVY + CALVES) -->
-                <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl overflow-hidden flex flex-col">
-                    <div class="bg-gradient-to-r from-brand-cardBg to-brand-borderBg/50 p-4 border-b border-brand-borderBg flex justify-between items-center">
-                        <div>
-                            <span class="text-xs font-bold text-brand-accent tracking-wider uppercase">Tag 2 - Dienstag</span>
-                            <h3 class="text-lg font-bold text-white">Unterkörper A (Squat Focus)</h3>
-                        </div>
-                        <span class="text-xs bg-brand-darkBg px-2.5 py-1 rounded border border-brand-borderBg text-gray-300">Fokus: Heavy Squat + Quad & Waden</span>
+                <!-- Bench -->
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <span class="text-gray-300 font-semibold">Bench (100kgx6 &rarr; 130kg)</span>
+                        <span class="text-amber-400 font-bold" id="bench-prog-text">120 / 130 kg</span>
                     </div>
-                    <div class="p-4 flex-grow space-y-4">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
-                                <thead>
-                                    <tr class="text-xs text-gray-400 border-b border-brand-borderBg/60 uppercase">
-                                        <th class="pb-2 font-medium">Übung</th>
-                                        <th class="pb-2 font-medium">Sätze</th>
-                                        <th class="pb-2 font-medium">Reps</th>
-                                        <th class="pb-2 font-medium">RPE / %</th>
-                                        <th class="pb-2 font-medium">Pause</th>
-                                        <th class="pb-2 font-medium text-center">Done</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-brand-borderBg/30 text-gray-200">
-                                    <!-- Ex 1 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5 font-semibold text-white">1. Kniebeuge (High/Low Bar Squat)</td>
-                                        <td>4</td>
-                                        <td class="font-mono text-brand-accent font-bold main-rep-display">4-5</td>
-                                        <td><span class="bg-red-500/20 text-red-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8</span></td>
-                                        <td class="text-xs text-gray-400">3-5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 2 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5 font-semibold text-white">2. Romanian Deadlift (RDL)</td>
-                                        <td>3</td>
-                                        <td>6-8</td>
-                                        <td><span class="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8</span></td>
-                                        <td class="text-xs text-gray-400">2.5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 3 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5">3. Beinpresse / Ausfallschritte</td>
-                                        <td>3</td>
-                                        <td>10-12</td>
-                                        <td><span class="bg-emerald-500/20 text-emerald-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8.5</span></td>
-                                        <td class="text-xs text-gray-400">2 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 4 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5">4. Beinstrecker (Leg Extension)</td>
-                                        <td>3</td>
-                                        <td>12-15</td>
-                                        <td><span class="bg-purple-500/20 text-purple-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 9</span></td>
-                                        <td class="text-xs text-gray-400">1.5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 5 (Waden Schwer) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition bg-brand-accent/5">
-                                        <td class="py-2.5 text-brand-accent font-medium">5. Stehendes Wadenheben (Schwer)</td>
-                                        <td>4</td>
-                                        <td>8-10</td>
-                                        <td><span class="bg-purple-500/20 text-purple-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 9 (2s Hold)</span></td>
-                                        <td class="text-xs text-gray-400">2 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 6 (Bauch) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5">6. Hängendes Beinheben / Ab-Wheel</td>
-                                        <td>3</td>
-                                        <td>10-15</td>
-                                        <td><span class="bg-emerald-500/20 text-emerald-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8</span></td>
-                                        <td class="text-xs text-gray-400">1 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="w-full bg-darkBg rounded-full h-2 border border-cardBorder">
+                        <div id="bench-bar" class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full transition-all duration-300" style="width: 92%"></div>
                     </div>
                 </div>
 
-                <!-- DAY 3: UPPER B (VOLUME BENCH / LAT / HYPERTROPHY) -->
-                <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl overflow-hidden flex flex-col">
-                    <div class="bg-gradient-to-r from-brand-cardBg to-brand-borderBg/50 p-4 border-b border-brand-borderBg flex justify-between items-center">
-                        <div>
-                            <span class="text-xs font-bold text-brand-accent tracking-wider uppercase">Tag 3 - Donnerstag</span>
-                            <h3 class="text-lg font-bold text-white">Oberkörper B (Volume & Aesthetics)</h3>
-                        </div>
-                        <span class="text-xs bg-brand-darkBg px-2.5 py-1 rounded border border-brand-borderBg text-gray-300">Fokus: Hypertrophie Lat, Schulter, Brust</span>
+                <!-- Deadlift -->
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <span class="text-gray-300 font-semibold">Deadlift (140kgx6 &rarr; 200kg)</span>
+                        <span class="text-amber-400 font-bold" id="deadlift-prog-text">168 / 200 kg</span>
                     </div>
-                    <div class="p-4 flex-grow space-y-4">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
-                                <thead>
-                                    <tr class="text-xs text-gray-400 border-b border-brand-borderBg/60 uppercase">
-                                        <th class="pb-2 font-medium">Übung</th>
-                                        <th class="pb-2 font-medium">Sätze</th>
-                                        <th class="pb-2 font-medium">Reps</th>
-                                        <th class="pb-2 font-medium">RPE / %</th>
-                                        <th class="pb-2 font-medium">Pause</th>
-                                        <th class="pb-2 font-medium text-center">Done</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-brand-borderBg/30 text-gray-200">
-                                    <!-- Ex 1 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5 font-semibold text-white">1. Pause Bench Press (Pause unten)</td>
-                                        <td>4</td>
-                                        <td class="font-mono text-brand-accent font-bold main-rep-display">5-6</td>
-                                        <td><span class="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8</span></td>
-                                        <td class="text-xs text-gray-400">3 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 2 (Lat Focus) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition bg-brand-accent/5">
-                                        <td class="py-2.5 text-brand-accent font-medium">2. Moderate Pullups (BW / Leichte Zulage)</td>
-                                        <td>4</td>
-                                        <td>6-8</td>
-                                        <td><span class="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8</span></td>
-                                        <td class="text-xs text-gray-400">2 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 3 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5">3. OHP (Schulterdrücken Stehend/Sitzend)</td>
-                                        <td>3</td>
-                                        <td>8-10</td>
-                                        <td><span class="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8</span></td>
-                                        <td class="text-xs text-gray-400">2 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 4 (Lat/Upper Back) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition bg-brand-accent/5">
-                                        <td class="py-2.5 text-brand-accent font-medium">4. Kabel-Überzüge (Lat Pullover) / Latziehen</td>
-                                        <td>3</td>
-                                        <td>12-15</td>
-                                        <td><span class="bg-purple-500/20 text-purple-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 9</span></td>
-                                        <td class="text-xs text-gray-400">1.5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 5 (Seitliche Schulter) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition bg-brand-accent/5">
-                                        <td class="py-2.5 text-brand-accent font-medium">5. Kurzhantel Seitheben (Lean-away)</td>
-                                        <td>4</td>
-                                        <td>12-15</td>
-                                        <td><span class="bg-purple-500/20 text-purple-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 9.5</span></td>
-                                        <td class="text-xs text-gray-400">1.5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 6 (Hintere Schulter / Arme) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition bg-brand-accent/5">
-                                        <td class="py-2.5 text-brand-accent font-medium">6. Reverse Butterfly / Rear Delt Flys</td>
-                                        <td>3</td>
-                                        <td>15-20</td>
-                                        <td><span class="bg-purple-500/20 text-purple-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 9</span></td>
-                                        <td class="text-xs text-gray-400">1 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="w-full bg-darkBg rounded-full h-2 border border-cardBorder">
+                        <div id="deadlift-bar" class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full transition-all duration-300" style="width: 84%"></div>
                     </div>
                 </div>
 
-                <!-- DAY 4: LOWER B (DEADLIFT HEAVY + CALVES) -->
-                <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl overflow-hidden flex flex-col">
-                    <div class="bg-gradient-to-r from-brand-cardBg to-brand-borderBg/50 p-4 border-b border-brand-borderBg flex justify-between items-center">
-                        <div>
-                            <span class="text-xs font-bold text-brand-accent tracking-wider uppercase">Tag 4 - Freitag/Samstag</span>
-                            <h3 class="text-lg font-bold text-white">Unterkörper B (Deadlift Focus)</h3>
-                        </div>
-                        <span class="text-xs bg-brand-darkBg px-2.5 py-1 rounded border border-brand-borderBg text-gray-300">Fokus: Heavy Deadlift + Hamstrings & Waden</span>
+                <!-- Weighted Pullup -->
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <span class="text-gray-300 font-semibold">Pullup (+30kgx3 &rarr; +50kg)</span>
+                        <span class="text-amber-400 font-bold" id="pullup-prog-text">+33.7 / +50 kg</span>
                     </div>
-                    <div class="p-4 flex-grow space-y-4">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
-                                <thead>
-                                    <tr class="text-xs text-gray-400 border-b border-brand-borderBg/60 uppercase">
-                                        <th class="pb-2 font-medium">Übung</th>
-                                        <th class="pb-2 font-medium">Sätze</th>
-                                        <th class="pb-2 font-medium">Reps</th>
-                                        <th class="pb-2 font-medium">RPE / %</th>
-                                        <th class="pb-2 font-medium">Pause</th>
-                                        <th class="pb-2 font-medium text-center">Done</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-brand-borderBg/30 text-gray-200">
-                                    <!-- Ex 1 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5 font-semibold text-white">1. Kreuzheben (Conventional / Sumo)</td>
-                                        <td>3-4</td>
-                                        <td class="font-mono text-brand-accent font-bold main-rep-display">3-4</td>
-                                        <td><span class="bg-red-500/20 text-red-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8-8.5</span></td>
-                                        <td class="text-xs text-gray-400">4-5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 2 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5">2. Pause Kniebeuge / Frontsquat</td>
-                                        <td>3</td>
-                                        <td>5-6</td>
-                                        <td><span class="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 7.5</span></td>
-                                        <td class="text-xs text-gray-400">3 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 3 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5">3. Beinbeuger liegend / sitzend (Hamstring)</td>
-                                        <td>4</td>
-                                        <td>10-12</td>
-                                        <td><span class="bg-emerald-500/20 text-emerald-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8.5</span></td>
-                                        <td class="text-xs text-gray-400">1.5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 4 (Sitzendes Wadenheben) -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition bg-brand-accent/5">
-                                        <td class="py-2.5 text-brand-accent font-medium">4. Sitzendes Wadenheben (Soleus Focus)</td>
-                                        <td>4</td>
-                                        <td>12-15</td>
-                                        <td><span class="bg-purple-500/20 text-purple-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 9 (Slow Eccentric)</span></td>
-                                        <td class="text-xs text-gray-400">1.5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                    <!-- Ex 5 -->
-                                    <tr class="hover:bg-brand-darkBg/50 transition">
-                                        <td class="py-2.5">5. Hyperextensions / Rückenstrecker</td>
-                                        <td>3</td>
-                                        <td>12-15</td>
-                                        <td><span class="bg-emerald-500/20 text-emerald-300 text-xs px-1.5 py-0.5 rounded font-mono">RPE 8</span></td>
-                                        <td class="text-xs text-gray-400">1.5 Min</td>
-                                        <td class="text-center"><input type="checkbox" class="w-4 h-4 rounded accent-brand-accent cursor-pointer"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- TAB 2: CALCULATOR & GOAL TRACKER -->
-        <div id="tab-content-calc" class="tab-content hidden space-y-6">
-            <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl p-6">
-                <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-calculator text-brand-accent"></i> 1RM Rechner & Ziel-Prognose
-                </h2>
-                <p class="text-sm text-gray-400 mb-6">
-                    Passe deine aktuellen Bestwerte an. Die App berechnet deine geschätzten 1RM-Werte (Brzycki & Epley Formel) und zeigt die verbleibende Kraftlücke zu deinen Zielwerten.
-                </p>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    
-                    <!-- Squat Input -->
-                    <div class="bg-brand-darkBg p-4 rounded-xl border border-brand-borderBg space-y-3">
-                        <div class="flex items-center justify-between border-b border-brand-borderBg pb-2">
-                            <span class="font-bold text-white">Squat</span>
-                            <span class="text-xs text-brand-accent font-semibold">Ziel: 140 kg</span>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400">Gewicht (kg)</label>
-                            <input type="number" id="input-squat-weight" value="110" oninput="calculate1RMs()" class="w-full bg-brand-cardBg border border-brand-borderBg rounded-lg p-2 text-white text-sm focus:border-brand-accent outline-none">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400">Wiederholungen</label>
-                            <input type="number" id="input-squat-reps" value="6" oninput="calculate1RMs()" class="w-full bg-brand-cardBg border border-brand-borderBg rounded-lg p-2 text-white text-sm focus:border-brand-accent outline-none">
-                        </div>
-                        <div class="pt-2 border-t border-brand-borderBg/50 text-xs space-y-1">
-                            <div class="flex justify-between"><span class="text-gray-400">Est. 1RM:</span><span id="calc-squat-1rm" class="font-bold text-white">132 kg</span></div>
-                            <div class="flex justify-between"><span class="text-gray-400">Fehlende Kraft:</span><span id="gap-squat" class="font-bold text-brand-accent">8 kg</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Bench Input -->
-                    <div class="bg-brand-darkBg p-4 rounded-xl border border-brand-borderBg space-y-3">
-                        <div class="flex items-center justify-between border-b border-brand-borderBg pb-2">
-                            <span class="font-bold text-white">Bench Press</span>
-                            <span class="text-xs text-brand-accent font-semibold">Ziel: 130 kg</span>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400">Gewicht (kg)</label>
-                            <input type="number" id="input-bench-weight" value="100" oninput="calculate1RMs()" class="w-full bg-brand-cardBg border border-brand-borderBg rounded-lg p-2 text-white text-sm focus:border-brand-accent outline-none">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400">Wiederholungen</label>
-                            <input type="number" id="input-bench-reps" value="6" oninput="calculate1RMs()" class="w-full bg-brand-cardBg border border-brand-borderBg rounded-lg p-2 text-white text-sm focus:border-brand-accent outline-none">
-                        </div>
-                        <div class="pt-2 border-t border-brand-borderBg/50 text-xs space-y-1">
-                            <div class="flex justify-between"><span class="text-gray-400">Est. 1RM:</span><span id="calc-bench-1rm" class="font-bold text-white">118 kg</span></div>
-                            <div class="flex justify-between"><span class="text-gray-400">Fehlende Kraft:</span><span id="gap-bench" class="font-bold text-brand-accent">12 kg</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Deadlift Input -->
-                    <div class="bg-brand-darkBg p-4 rounded-xl border border-brand-borderBg space-y-3">
-                        <div class="flex items-center justify-between border-b border-brand-borderBg pb-2">
-                            <span class="font-bold text-white">Deadlift</span>
-                            <span class="text-xs text-brand-accent font-semibold">Ziel: 200 kg</span>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400">Gewicht (kg)</label>
-                            <input type="number" id="input-deadlift-weight" value="140" oninput="calculate1RMs()" class="w-full bg-brand-cardBg border border-brand-borderBg rounded-lg p-2 text-white text-sm focus:border-brand-accent outline-none">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400">Wiederholungen</label>
-                            <input type="number" id="input-deadlift-reps" value="6" oninput="calculate1RMs()" class="w-full bg-brand-cardBg border border-brand-borderBg rounded-lg p-2 text-white text-sm focus:border-brand-accent outline-none">
-                        </div>
-                        <div class="pt-2 border-t border-brand-borderBg/50 text-xs space-y-1">
-                            <div class="flex justify-between"><span class="text-gray-400">Est. 1RM:</span><span id="calc-deadlift-1rm" class="font-bold text-white">165 kg</span></div>
-                            <div class="flex justify-between"><span class="text-gray-400">Fehlende Kraft:</span><span id="gap-deadlift" class="font-bold text-brand-accent">35 kg</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Weighted Pullup Input -->
-                    <div class="bg-brand-darkBg p-4 rounded-xl border border-brand-borderBg space-y-3">
-                        <div class="flex items-center justify-between border-b border-brand-borderBg pb-2">
-                            <span class="font-bold text-white">Pullup (Zusatz)</span>
-                            <span class="text-xs text-brand-accent font-semibold">Ziel: +50 kg</span>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400">Zusatzgewicht (kg)</label>
-                            <input type="number" id="input-pullup-weight" value="30" oninput="calculate1RMs()" class="w-full bg-brand-cardBg border border-brand-borderBg rounded-lg p-2 text-white text-sm focus:border-brand-accent outline-none">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400">Wiederholungen</label>
-                            <input type="number" id="input-pullup-reps" value="3" oninput="calculate1RMs()" class="w-full bg-brand-cardBg border border-brand-borderBg rounded-lg p-2 text-white text-sm focus:border-brand-accent outline-none">
-                        </div>
-                        <div class="pt-2 border-t border-brand-borderBg/50 text-xs space-y-1">
-                            <div class="flex justify-between"><span class="text-gray-400">Est. Zusatz-1RM:</span><span id="calc-pullup-1rm" class="font-bold text-white">+33 kg</span></div>
-                            <div class="flex justify-between"><span class="text-gray-400">Fehlende Kraft:</span><span id="gap-pullup" class="font-bold text-brand-accent">17 kg</span></div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Analysis Box -->
-                <div class="mt-8 bg-brand-darkBg/60 border border-brand-borderBg rounded-xl p-5">
-                    <h3 class="text-md font-bold text-white mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> Trajektorie & Zeitaufwand-Einschätzung
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
-                        <div>
-                            <p class="mb-2"><strong class="text-white">Schnellster Pfad (Squat & Bench):</strong> Du bist sehr nah an deinen Zielen für Kniebeuge (+8kg) und Bankdrücken (+12kg). Bei strukturierter periodisierter Progression (2–3 Blöcke à 5 Wochen) kannst du diese Ziele in <strong>8–12 Wochen</strong> erreichen.</p>
-                        </div>
-                        <div>
-                            <p><strong class="text-white">Größerer Kraftaufbau (Deadlift & Pullup):</strong> Beim Kreuzheben fehlen ca. 35kg zum 200kg-Ziel und beim Klimmzug 17kg. Dies erfordert stetige ZNS-Anpassung und den Aufbau von Rückendichte / Lat-Masse in <strong>16–24 Wochen</strong> (ca. 4–5 Trainingsblöcke).</p>
-                        </div>
+                    <div class="w-full bg-darkBg rounded-full h-2 border border-cardBorder">
+                        <div id="pullup-bar" class="bg-gradient-to-r from-amber-500 to-amber-400 h-2 rounded-full transition-all duration-300" style="width: 67%"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 3: PERIODIZATION & PROGRESSION -->
-        <div id="tab-content-periodization" class="tab-content hidden space-y-6">
-            <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl p-6">
-                <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line text-brand-accent"></i> 5-Wochen Wellenperiodisierungs-System
-                </h2>
-                <p class="text-sm text-gray-400 mb-6">
-                    Um Plateaus zu vermeiden und das Nervensystem schrittweise an maximale Lasten gewöhnen, nutzt dieser Plan ein periodisiertes Wellenmodell (Akkumulation &rarr; Intensivierung &rarr; Deload).
-                </p>
-
-                <!-- Periodization Timeline -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    
-                    <!-- Phase 1 -->
-                    <div class="bg-brand-darkBg border border-brand-borderBg rounded-xl p-5 relative overflow-hidden">
-                        <div class="text-xs font-bold text-brand-accent uppercase tracking-wider mb-1">Woche 1 & 2</div>
-                        <h3 class="text-lg font-bold text-white mb-3">Akkumulations-Phase</h3>
-                        <ul class="text-xs text-gray-300 space-y-2">
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-accent mt-0.5"></i> <span><strong>Reps Hauptübungen:</strong> 5 Wiederholungen</span></li>
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-accent mt-0.5"></i> <span><strong>Intensität:</strong> RPE 7.5 - 8 (ca. 75-78% 1RM)</span></li>
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-accent mt-0.5"></i> <span><strong>Ziel:</strong> Aufbau von Bewegungseffizienz, Muskelmasse & Volumenverträglichkeit.</span></li>
-                        </ul>
-                    </div>
-
-                    <!-- Phase 2 -->
-                    <div class="bg-brand-darkBg border border-brand-borderBg rounded-xl p-5 relative overflow-hidden">
-                        <div class="text-xs font-bold text-brand-accent uppercase tracking-wider mb-1">Woche 3 & 4</div>
-                        <h3 class="text-lg font-bold text-white mb-3">Intensivierungs-Phase</h3>
-                        <ul class="text-xs text-gray-300 space-y-2">
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-accent mt-0.5"></i> <span><strong>Reps Hauptübungen:</strong> 3-4 Wiederholungen</span></li>
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-accent mt-0.5"></i> <span><strong>Intensität:</strong> RPE 8.5 - 9 (ca. 82-87% 1RM)</span></li>
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-accent mt-0.5"></i> <span><strong>Ziel:</strong> Maximierung der neuronalen Rekrutierung & hohe Lasten.</span></li>
-                        </ul>
-                    </div>
-
-                    <!-- Phase 3 -->
-                    <div class="bg-brand-darkBg border border-brand-borderBg rounded-xl p-5 relative overflow-hidden">
-                        <div class="text-xs font-bold text-brand-accent uppercase tracking-wider mb-1">Woche 5</div>
-                        <h3 class="text-lg font-bold text-white mb-3">Deload & Superkompensation</h3>
-                        <ul class="text-xs text-gray-300 space-y-2">
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-accent mt-0.5"></i> <span><strong>Sätze & Volumen:</strong> Halbiertes Volumen (2 Sätze pro Übung)</span></li>
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-accent mt-0.5"></i> <span><strong>Intensität:</strong> RPE 6 - 7 (ca. 60-70% 1RM)</span></li>
-                            <li class="flex items-start gap-2"><i class="fa-solid fa-check text-brand-accent mt-0.5"></i> <span><strong>Ziel:</strong> Abbau von ZNS-Ermüdung. Danach Start eines neuen Blocks mit +2.5kg bis +5kg höherem Gewicht!</span></li>
-                        </ul>
-                    </div>
-
-                </div>
-
-                <!-- Progression Rules -->
-                <div class="mt-8 bg-brand-darkBg/60 border border-brand-borderBg rounded-xl p-5">
-                    <h3 class="text-md font-bold text-white mb-3">Einfache Reglementierung für Steigerungen</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-300">
-                        <div class="space-y-2">
-                            <p class="font-semibold text-white">1. Wie steigere ich in den Hauptübungen (Oberkörper/Unterkörper)?</p>
-                            <p>Wenn du in Woche 2 alle geforderten Sätze mit 5 Reps bei RPE &le; 8 absolviert hast, erhöhst du für den nächsten 5-Wochen-Zyklus dein Startgewicht um <strong>2.5 kg (Bench/Pullup)</strong> bzw. <strong>2.5 kg - 5 kg (Squat/Deadlift)</strong>.</p>
-                        </div>
-                        <div class="space-y-2">
-                            <p class="font-semibold text-white">2. Wie steigere ich bei Ästhetik- & Isolationsübungen?</p>
-                            <p>Nutze die <i>Double-Progression</i> Methode. Wenn du beispielsweise bei Seitheben den angegebenen Rep-Bereich (z.B. 4 Sätze à 15 Reps) sauber erreichst, erhöhst du in der nächsten Einheit das Gewicht um die kleinste Stufe.</p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+        <!-- Day Selector Tabs (Horizontal Scroll) -->
+        <div class="flex space-x-2 overflow-x-auto custom-scrollbar py-1">
+            <button onclick="switchDay('day1')" id="tab-day1" class="day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-amber-500 text-black font-extrabold text-xs text-center border border-amber-400 transition-all shadow">
+                Tag 1: Lower A
+            </button>
+            <button onclick="switchDay('day2')" id="tab-day2" class="day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-cardBg text-gray-400 font-bold text-xs text-center border border-cardBorder transition-all">
+                Tag 2: Upper A
+            </button>
+            <button onclick="switchDay('day3')" id="tab-day3" class="day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-cardBg text-gray-400 font-bold text-xs text-center border border-cardBorder transition-all">
+                Tag 3: Lower B
+            </button>
+            <button onclick="switchDay('day4')" id="tab-day4" class="day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-cardBg text-gray-400 font-bold text-xs text-center border border-cardBorder transition-all">
+                Tag 4: Upper B
+            </button>
         </div>
 
-        <!-- TAB 4: GLOSSARY & FAQ -->
-        <div id="tab-content-glossary" class="tab-content hidden space-y-6">
-            <div class="bg-brand-cardBg border border-brand-borderBg rounded-xl p-6">
-                <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-book text-brand-accent"></i> Fachbegriffe & Trainings-Prinzipien
-                </h2>
+        <!-- WORKOUT CONTENT CONTAINER -->
+        <div id="workout-container" class="space-y-4">
+            <!-- Dynamic workout content rendered via JS -->
+        </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- Term 1 -->
-                    <div class="bg-brand-darkBg p-4 rounded-xl border border-brand-borderBg">
-                        <span class="text-xs text-brand-accent font-bold uppercase">Skala der gefühlten Anstrengung</span>
-                        <h3 class="text-md font-bold text-white mt-0.5 mb-2">RPE (Rate of Perceived Exertion)</h3>
-                        <p class="text-xs text-gray-300 leading-relaxed">
-                            RPE bemisst, wie viele Wiederholungen du vor dem Muskelversagen im Satz aufüber hattest (RIR = Reps in Reserve):
-                            <br><br>
-                            • <strong>RPE 10:</strong> Maximales Muskelversagen (0 Wiederholungen möglich).<br>
-                            • <strong>RPE 9:</strong> 1 weitere Wiederholung wäre im Tank gewesen.<br>
-                            • <strong>RPE 8:</strong> 2 weitere Wiederholungen im Tank (Standard für Kraftaufbau).<br>
-                            • <strong>RPE 7:</strong> 3 weitere Wiederholungen im Tank (Explosivkraft & Aufwärmen).
-                        </p>
-                    </div>
-
-                    <!-- Term 2 -->
-                    <div class="bg-brand-darkBg p-4 rounded-xl border border-brand-borderBg">
-                        <span class="text-xs text-brand-accent font-bold uppercase">Maximalkraft</span>
-                        <h3 class="text-md font-bold text-white mt-0.5 mb-2">1RM (One Repetition Maximum)</h3>
-                        <p class="text-xs text-gray-300 leading-relaxed">
-                            Das maximale Gewicht, das du für genau 1 saubere Wiederholung bewegen kannst. Auf diesem Wert basieren die prozentualen Belastungen im Kraftsport. Für das tägliche Training berechnen wir ein "Estimated 1RM" (e1RM) aus deinen Mehrfachwiederholungen (z. B. 6x100kg &approx; 118kg 1RM).
-                        </p>
-                    </div>
-
-                    <!-- Term 3 -->
-                    <div class="bg-brand-darkBg p-4 rounded-xl border border-brand-borderBg">
-                        <span class="text-xs text-brand-accent font-bold uppercase">Ästhetik & Muskelwachstum</span>
-                        <h3 class="text-md font-bold text-white mt-0.5 mb-2">Hypertrophie für Waden, Schultern & Lat</h3>
-                        <p class="text-xs text-gray-300 leading-relaxed">
-                            Hauptübungen (Squat/Bench/Deadlift) bauen enorme Grundmasse auf. Um eine V-Taper V-Form zu garantieren, sind isolierte Hypertrophie-Übungen im höheren Wiederholungsbereich (10-15 Reps) fest eingebaut:
-                            <br><br>
-                            • <strong>Seitliche Schulter:</strong> Mind. 8 Sätze/Woche Seitheben für Schulterbreite.<br>
-                            • <strong>Latismus:</strong> Voller Stretch bei Kabel-Überzügen & Latziehen ergänzend zu schweren Klimmzügen.<br>
-                            • <strong>Waden:</strong> Sowohl stehend (Gastrocnemius) als auch sitzend (Soleus) für vollständiges Wachstum.
-                        </p>
-                    </div>
-
-                    <!-- Term 4 -->
-                    <div class="bg-brand-darkBg p-4 rounded-xl border border-brand-borderBg">
-                        <span class="text-xs text-brand-accent font-bold uppercase">Regeneration</span>
-                        <h3 class="text-md font-bold text-white mt-0.5 mb-2">ZNS-Ermüdung & Deloads</h3>
-                        <p class="text-xs text-gray-300 leading-relaxed">
-                            Schwere Grundübungen belasten nicht nur die Muskeln, sondern das Zentralnervensystem (ZNS). Ein geplanter Deload in Woche 5 baut akkumulierte Erschöpfung ab, verhindert Verletzungen und ermöglicht Bändermodulation für erneute Progression im Folgebock.
-                        </p>
-                    </div>
-
-                </div>
-            </div>
+        <!-- Action Buttons -->
+        <div class="pt-2 flex gap-3">
+            <button onclick="saveCurrentWorkout()" class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-black py-3.5 px-4 rounded-xl shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-floppy-disk"></i> Training Speichern
+            </button>
+            <button onclick="resetCurrentDay()" class="bg-cardBg border border-cardBorder text-gray-400 font-semibold px-4 py-3.5 rounded-xl active:scale-95 transition">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
         </div>
 
     </main>
 
-    <!-- Rest Timer Overlay / Modal (Hidden by Default) -->
-    <div id="timer-modal" class="fixed bottom-6 right-6 bg-brand-cardBg border border-brand-borderBg rounded-2xl p-4 shadow-2xl z-50 flex items-center space-x-4 border-l-4 border-l-brand-accent">
-        <div class="text-brand-accent text-3xl">
-            <i class="fa-solid fa-clock"></i>
-        </div>
-        <div>
-            <div class="text-xs text-gray-400 font-semibold uppercase">Satzpause Timer</div>
-            <div id="modal-timer-display" class="text-2xl font-black font-mono text-white">03:00</div>
-        </div>
-        <div class="flex items-center space-x-1">
-            <button onclick="setTimerSeconds(180)" class="text-xs bg-brand-darkBg hover:bg-brand-borderBg px-2 py-1 rounded border border-brand-borderBg">3m</button>
-            <button onclick="setTimerSeconds(240)" class="text-xs bg-brand-darkBg hover:bg-brand-borderBg px-2 py-1 rounded border border-brand-borderBg">4m</button>
-            <button onclick="toggleTimer()" id="modal-timer-play-btn" class="text-xs bg-brand-accent hover:bg-brand-accentHover text-white px-3 py-1.5 rounded font-bold transition">Start</button>
+    <!-- Sticky Bottom Timer Bar -->
+    <div class="fixed bottom-0 left-0 right-0 z-40 bg-cardBg/95 backdrop-blur border-t border-cardBorder p-3 shadow-2xl">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-darkBg border border-cardBorder flex items-center justify-center text-amber-400">
+                    <i class="fa-solid fa-stopwatch text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] text-gray-400 uppercase font-bold block">Satzpause Timer</span>
+                    <span id="timer-display" class="font-mono text-xl font-black text-white">03:00</span>
+                </div>
+            </div>
+
+            <!-- Timer Action Buttons -->
+            <div class="flex items-center space-x-1.5">
+                <button onclick="setTimer(180)" class="px-2.5 py-1.5 rounded-lg bg-darkBg border border-cardBorder text-xs font-bold text-gray-300 hover:text-white active:bg-amber-500 active:text-black">3m</button>
+                <button onclick="setTimer(90)" class="px-2.5 py-1.5 rounded-lg bg-darkBg border border-cardBorder text-xs font-bold text-gray-300 hover:text-white active:bg-amber-500 active:text-black">1.5m</button>
+                <button onclick="toggleTimer()" id="timer-start-btn" class="px-4 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-black shadow transition active:scale-95">START</button>
+            </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="border-t border-brand-borderBg py-6 mt-12 bg-brand-cardBg text-center text-xs text-gray-500">
-        <p>Apex Powerbuilding System &bull; Entwickelt für maximale Kraftgewinne & Ästhetik</p>
-    </footer>
+    <!-- Info / Guide Modal -->
+    <div id="info-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl max-w-sm w-full p-5 space-y-4 max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center border-b border-cardBorder pb-3">
+                <h3 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-amber-400"></i> Periodisierung & RPE
+                </h3>
+                <button onclick="toggleModal('info-modal')" class="text-gray-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
-    <!-- JavaScript Application Logic -->
+            <div class="space-y-3 text-xs text-gray-300 leading-relaxed">
+                <p><strong class="text-amber-400">Wie funktionieren die Vorgaben?</strong><br>
+                Die App berechnet deine Gewichte für Main Lifts automatisch nach dem 8-Wochen-Zyklus. Nach Woche 8 testest du deine Zielwerte (140 / 130 / 200 / +50). Wenn geschafft, wählst du "Neuer Zyklus".</p>
+
+                <div class="bg-darkBg p-3 rounded-xl border border-cardBorder space-y-1">
+                    <span class="font-bold text-white block">RPE Skala Guide:</span>
+                    <div>• <strong>RPE 8:</strong> 2 Reps im Tank (Standard Kraft)</div>
+                    <div>• <strong>RPE 8.5:</strong> 1-2 Reps im Tank</div>
+                    <div>• <strong>RPE 9:</strong> 1 Rep im Tank (Peak)</div>
+                    <div>• <strong>RPE 10:</strong> Maximales Versagen / PR Versuch</div>
+                </div>
+
+                <p><strong class="text-amber-400">Ästhetik & Hypertrophie Focus:</strong><br>
+                Waden (4 Sätze), Seitliche Schulter (4 Sätze), Hintere Schulter (3 Sätze) und Latismus haben feste wöchentliche Slots, um optimales Muskelwachstum sicherzustellen.</p>
+            </div>
+
+            <button onclick="toggleModal('info-modal')" class="w-full bg-amber-500 text-black font-bold py-2.5 rounded-xl">Verstanden</button>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Logic -->
     <script>
-        // State management
+        // BASE 1RM USER VALUES (Starting Point)
+        let userStats = {
+            squat1RM: 132,      // From 6x110kg
+            bench1RM: 120,      // From 6x100kg
+            deadlift1RM: 168,   // From 6x140kg
+            pullup1RM: 33.7     // From 3x30kg
+        };
+
+        // TARGET VALUES
+        const TARGETS = { squat: 140, bench: 130, deadlift: 200, pullup: 50 };
+
+        // 8-WEEK PERIODIZATION CONFIGURATION FOR MAIN LIFTS
+        // % of e1RM, Sets, Reps, RPE
+        const PERIODIZATION = {
+            1: { pct: 0.75, sets: 3, reps: 5, rpe: '7.5', label: 'Akkumulation' },
+            2: { pct: 0.775, sets: 3, reps: 5, rpe: '8.0', label: 'Intensivierung' },
+            3: { pct: 0.825, sets: 3, reps: 3, rpe: '8.5', label: 'Kraft Peak' },
+            4: { pct: 0.65, sets: 3, reps: 3, rpe: '6.0', label: 'Deload' },
+            5: { pct: 0.80, sets: 3, reps: 4, rpe: '8.0', label: 'Heavy Accumulation' },
+            6: { pct: 0.875, sets: 3, reps: 2, rpe: '9.0', label: 'Heavy Peak' },
+            7: { pct: 0.925, sets: 2, reps: 2, rpe: '9.5', label: 'Singles / Doubles' },
+            8: { pct: 1.00, sets: 1, reps: 1, rpe: '10.0', label: 'PR TESTWOCHE!' }
+        };
+
+        // WORKOUT PLAN STRUCTURE
+        const WORKOUT_PLAN = {
+            day1: {
+                title: "Tag 1: Lower A (Squat Heavy & Waden)",
+                exercises: [
+                    { id: "squat", name: "1. Kniebeuge (Squat)", isMain: true, statKey: "squat1RM" },
+                    { id: "rdl", name: "2. Romanian Deadlift (RDL)", sets: 3, defaultReps: "6-8", targetNote: "RPE 8" },
+                    { id: "legpress", name: "3. Beinpresse / Ausfallschritte", sets: 3, defaultReps: "10-12", targetNote: "RPE 8.5" },
+                    { id: "calves_standing", name: "4. Wadenheben stehend (Schwer)", sets: 4, defaultReps: "8-10", targetNote: "2s Hold oben", isAesthetic: true },
+                    { id: "abs1", name: "5. Hängendes Beinheben / Core", sets: 3, defaultReps: "12-15", targetNote: "Sauber" }
+                ]
+            },
+            day2: {
+                title: "Tag 2: Upper A (Bench & Pullup Heavy)",
+                exercises: [
+                    { id: "bench", name: "1. Bankdrücken (Bench Press)", isMain: true, statKey: "bench1RM" },
+                    { id: "pullup", name: "2. Klimmzug m. Zusatzgewicht", isMain: true, statKey: "pullup1RM" },
+                    { id: "incline_db", name: "3. Schrägbank KH-Drücken", sets: 3, defaultReps: "8-10", targetNote: "RPE 8" },
+                    { id: "lat_pulldown", name: "4. Latziehen Untergriff (Stretch Focus)", sets: 3, defaultReps: "10-12", targetNote: "RPE 8.5", isAesthetic: true },
+                    { id: "side_cable", name: "5. Seitheben am Kabelzug", sets: 4, defaultReps: "12-15", targetNote: "RPE 9 (Ästhetik)", isAesthetic: true },
+                    { id: "rear_flys", name: "6. Reverse Butterfly / Rear Delt Flys", sets: 3, defaultReps: "15-20", targetNote: "RPE 9", isAesthetic: true },
+                    { id: "biceps", name: "7. KH / Kabel Curls", sets: 3, defaultReps: "10-12", targetNote: "Pump" }
+                ]
+            },
+            day3: {
+                title: "Tag 3: Lower B (Deadlift Heavy & Waden)",
+                exercises: [
+                    { id: "deadlift", name: "1. Kreuzheben (Deadlift)", isMain: true, statKey: "deadlift1RM" },
+                    { id: "frontsquat", name: "2. Pause Squat / Frontsquat", sets: 3, defaultReps: "5-6", targetNote: "RPE 7.5" },
+                    { id: "leg_curl", name: "3. Beinbeuger liegend/sitzend", sets: 4, defaultReps: "10-12", targetNote: "RPE 8.5" },
+                    { id: "calves_seated", name: "4. Wadenheben sitzend", sets: 4, defaultReps: "12-15", targetNote: "Slow Eccentric", isAesthetic: true },
+                    { id: "hyper", name: "5. Rückenstrecker / Hyperextensions", sets: 3, defaultReps: "12-15", targetNote: "RPE 8" }
+                ]
+            },
+            day4: {
+                title: "Tag 4: Upper B (Bench Vol. & Lat/Schulter)",
+                exercises: [
+                    { id: "bench_volume", name: "1. Pause Bankdrücken (Variante)", isMain: true, statKey: "bench1RM", pctModifier: 0.9 },
+                    { id: "pullup_volume", name: "2. Klimmzüge (Moderat / BW)", sets: 4, defaultReps: "6-8", targetNote: "RPE 8", isAesthetic: true },
+                    { id: "ohp", name: "3. Schulterdrücken (OHP)", sets: 3, defaultReps: "8-10", targetNote: "RPE 8" },
+                    { id: "lat_pullover", name: "4. Kabel-Überzüge (Lat Pullover)", sets: 3, defaultReps: "12-15", targetNote: "RPE 9", isAesthetic: true },
+                    { id: "side_db", name: "5. KH Seitheben (Lean-Away)", sets: 4, defaultReps: "12-15", targetNote: "RPE 9.5", isAesthetic: true },
+                    { id: "facepulls", name: "6. Facepulls am Kabelzug", sets: 3, defaultReps: "15-20", targetNote: "Rear Delt", isAesthetic: true },
+                    { id: "triceps", name: "7. Trizeps Dips / Kabeldrücken", sets: 3, defaultReps: "10-12", targetNote: "Pump" }
+                ]
+            }
+        };
+
+        // STATE VARIABLES
+        let currentDay = 'day1';
+        let currentWeek = 1;
         let timerSeconds = 180;
         let timerInterval = null;
         let isTimerRunning = false;
-        let currentBlock = 1;
+        let workoutLog = {};
 
-        // Targets (1RM in kg)
-        const TARGETS = {
-            squat: 140,
-            bench: 130,
-            deadlift: 200,
-            pullup: 50 // Zusatzgewicht
-        };
-
-        // 1RM Calculation Formulas
-        // Brzycki: Weight / (1.0278 - (0.0278 * Reps))
-        // Epley: Weight * (1 + 0.0333 * Reps)
-        function calcEpley1RM(weight, reps) {
-            if (reps === 1) return weight;
-            return weight * (1 + 0.0333 * reps);
+        // HELPER FUNCTIONS
+        function roundTo2_5(val) {
+            return Math.round(val / 2.5) * 2.5;
         }
 
-        function calculate1RMs() {
-            // Inputs
-            const squatW = parseFloat(document.getElementById('input-squat-weight').value) || 0;
-            const squatR = parseFloat(document.getElementById('input-squat-reps').value) || 0;
-
-            const benchW = parseFloat(document.getElementById('input-bench-weight').value) || 0;
-            const benchR = parseFloat(document.getElementById('input-bench-reps').value) || 0;
-
-            const deadliftW = parseFloat(document.getElementById('input-deadlift-weight').value) || 0;
-            const deadliftR = parseFloat(document.getElementById('input-deadlift-reps').value) || 0;
-
-            const pullupW = parseFloat(document.getElementById('input-pullup-weight').value) || 0;
-            const pullupR = parseFloat(document.getElementById('input-pullup-reps').value) || 0;
-
-            // 1RMs
-            const squat1RM = Math.round(calcEpley1RM(squatW, squatR));
-            const bench1RM = Math.round(calcEpley1RM(benchW, benchR));
-            const deadlift1RM = Math.round(calcEpley1RM(deadliftW, deadliftR));
-            const pullup1RM = Math.round(calcEpley1RM(pullupW, pullupR));
-
-            // Update Stats Display in Calculator Tab
-            document.getElementById('calc-squat-1rm').innerText = `${squat1RM} kg`;
-            document.getElementById('gap-squat').innerText = `${Math.max(0, TARGETS.squat - squat1RM)} kg`;
-
-            document.getElementById('calc-bench-1rm').innerText = `${bench1RM} kg`;
-            document.getElementById('gap-bench').innerText = `${Math.max(0, TARGETS.bench - bench1RM)} kg`;
-
-            document.getElementById('calc-deadlift-1rm').innerText = `${deadlift1RM} kg`;
-            document.getElementById('gap-deadlift').innerText = `${Math.max(0, TARGETS.deadlift - deadlift1RM)} kg`;
-
-            document.getElementById('calc-pullup-1rm').innerText = `+${pullup1RM} kg`;
-            document.getElementById('gap-pullup').innerText = `${Math.max(0, TARGETS.pullup - pullup1RM)} kg`;
-
-            // Update Main Stat Header & Progress Bars
-            document.getElementById('stat-squat-1rm').innerHTML = `${squat1RM} kg <span class="text-xs font-normal text-gray-400">(Est. 1RM)</span>`;
-            document.getElementById('stat-bench-1rm').innerHTML = `${bench1RM} kg <span class="text-xs font-normal text-gray-400">(Est. 1RM)</span>`;
-            document.getElementById('stat-deadlift-1rm').innerHTML = `${deadlift1RM} kg <span class="text-xs font-normal text-gray-400">(Est. 1RM)</span>`;
-            document.getElementById('stat-pullup-1rm').innerHTML = `+${pullup1RM} kg <span class="text-xs font-normal text-gray-400">(Est. 1RM)</span>`;
-
-            // Progress Bar Widths (%)
-            document.getElementById('bar-squat').style.width = `${Math.min(100, Math.round((squat1RM / TARGETS.squat) * 100))}%`;
-            document.getElementById('bar-bench').style.width = `${Math.min(100, Math.round((bench1RM / TARGETS.bench) * 100))}%`;
-            document.getElementById('bar-deadlift').style.width = `${Math.min(100, Math.round((deadlift1RM / TARGETS.deadlift) * 100))}%`;
-            document.getElementById('bar-pullup').style.width = `${Math.min(100, Math.round((pullup1RM / TARGETS.pullup) * 100))}%`;
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('hidden');
         }
 
-        // Tab Switching Logic
-        function switchTab(tabName) {
-            // Hide all tab contents
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(el => el.classList.add('hidden'));
-
-            // Reset tab button styles
-            const btns = document.querySelectorAll('.tab-btn');
-            btns.forEach(btn => {
-                btn.classList.remove('border-brand-accent', 'text-brand-accent');
-                btn.classList.add('border-transparent', 'text-gray-400');
-            });
-
-            // Show selected tab content
-            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
-
-            // Highlight selected tab button
-            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-            activeBtn.classList.remove('border-transparent', 'text-gray-400');
-            activeBtn.classList.add('border-brand-accent', 'text-brand-accent');
+        function toggleCollapse(id) {
+            const el = document.getElementById(id);
+            const icon = document.getElementById(`${id}-icon`);
+            el.classList.toggle('hidden');
+            if (icon) icon.classList.toggle('rotate-180');
         }
 
-        // Set Week Block in Training Plan
-        function setWeekBlock(block) {
-            currentBlock = block;
+        function changeWeek(w) {
+            currentWeek = parseInt(w);
+            renderWorkout();
+        }
+
+        function switchDay(dayKey) {
+            currentDay = dayKey;
             
-            // Button Styles
-            const b1 = document.getElementById('block-btn-1');
-            const b3 = document.getElementById('block-btn-3');
-            const b5 = document.getElementById('block-btn-5');
-
-            [b1, b3, b5].forEach(b => {
-                b.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-darkBg text-gray-400 border border-brand-borderBg hover:text-white transition";
+            // Tab styling update
+            document.querySelectorAll('.day-tab').forEach(btn => {
+                btn.className = "day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-cardBg text-gray-400 font-bold text-xs text-center border border-cardBorder transition-all";
             });
-
-            if(block === 1) {
-                b1.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-accent text-white transition";
-            } else if(block === 3) {
-                b3.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-accent text-white transition";
-            } else {
-                b5.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-accent text-white transition";
+            const activeBtn = document.getElementById(`tab-${dayKey}`);
+            if (activeBtn) {
+                activeBtn.className = "day-tab flex-1 min-w-[90px] py-2 px-3 rounded-xl bg-amber-500 text-black font-extrabold text-xs text-center border border-amber-400 transition-all shadow";
             }
 
-            // Adjust main rep displays dynamically based on block
-            const repDisplays = document.querySelectorAll('.main-rep-display');
-            repDisplays.forEach((el, index) => {
-                if(block === 1) {
-                    // Akkumulation
-                    if(index === 0) el.innerText = "5"; // Bench
-                    if(index === 1) el.innerText = "4-5"; // Pullup
-                    if(index === 2) el.innerText = "5"; // Squat
-                    if(index === 3) el.innerText = "5"; // Pause bench
-                    if(index === 4) el.innerText = "4"; // Deadlift
-                } else if(block === 3) {
-                    // Intensivierung
-                    if(index === 0) el.innerText = "3"; // Bench
-                    if(index === 1) el.innerText = "3"; // Pullup
-                    if(index === 2) el.innerText = "3-4"; // Squat
-                    if(index === 3) el.innerText = "3-4"; // Pause bench
-                    if(index === 4) el.innerText = "2-3"; // Deadlift
-                } else if(block === 5) {
-                    // Deload
-                    el.innerText = "5 (Light)";
-                }
-            });
+            renderWorkout();
         }
 
-        // Timer Functions
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
+        // TIMER SYSTEM
+        function updateTimerDisplay() {
+            const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+            const s = (timerSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${m}:${s}`;
         }
 
-        function updateTimerDisplays() {
-            const formatted = formatTime(timerSeconds);
-            document.getElementById('nav-timer-display').innerText = formatted;
-            document.getElementById('modal-timer-display').innerText = formatted;
+        function setTimer(sec) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timerSeconds = sec;
+            updateTimerDisplay();
+            document.getElementById('timer-start-btn').innerText = "START";
+            document.getElementById('timer-start-btn').className = "px-4 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-black shadow transition active:scale-95";
         }
 
         function toggleTimer() {
+            const btn = document.getElementById('timer-start-btn');
             if (isTimerRunning) {
                 clearInterval(timerInterval);
                 isTimerRunning = false;
-                document.getElementById('nav-timer-btn').innerText = "Start";
-                document.getElementById('modal-timer-play-btn').innerText = "Start";
+                btn.innerText = "START";
+                btn.className = "px-4 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-black shadow transition active:scale-95";
             } else {
                 isTimerRunning = true;
-                document.getElementById('nav-timer-btn').innerText = "Pause";
-                document.getElementById('modal-timer-play-btn').innerText = "Pause";
+                btn.innerText = "PAUSE";
+                btn.className = "px-4 py-1.5 rounded-lg bg-red-500 text-white text-xs font-black shadow transition active:scale-95";
                 
                 timerInterval = setInterval(() => {
                     if (timerSeconds > 0) {
                         timerSeconds--;
-                        updateTimerDisplays();
+                        updateTimerDisplay();
                     } else {
                         clearInterval(timerInterval);
                         isTimerRunning = false;
-                        document.getElementById('nav-timer-btn').innerText = "Start";
-                        document.getElementById('modal-timer-play-btn').innerText = "Start";
-                        playTimerAlert();
+                        btn.innerText = "START";
+                        btn.className = "px-4 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-black shadow transition active:scale-95";
+                        
+                        // Audio Beep
+                        try {
+                            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                            const osc = ctx.createOscillator();
+                            osc.frequency.value = 800;
+                            osc.connect(ctx.destination);
+                            osc.start();
+                            osc.stop(ctx.currentTime + 0.5);
+                        } catch(e) {}
                     }
                 }, 1000);
             }
         }
 
-        function resetTimer() {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-            timerSeconds = 180; // 3 mins default
-            updateTimerDisplays();
-            document.getElementById('nav-timer-btn').innerText = "Start";
-            document.getElementById('modal-timer-play-btn').innerText = "Start";
+        // RENDER WORKOUT CARD FOR SELECTED DAY
+        function renderWorkout() {
+            const container = document.getElementById('workout-container');
+            const dayData = WORKOUT_PLAN[currentDay];
+            const weekConfig = PERIODIZATION[currentWeek];
+
+            let html = `
+                <div class="bg-cardBg border border-cardBorder rounded-2xl p-4 shadow-sm space-y-4">
+                    <div class="flex justify-between items-start border-b border-cardBorder pb-3">
+                        <div>
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-400">Woche ${currentWeek}: ${weekConfig.label}</span>
+                            <h2 class="text-base font-black text-white">${dayData.title}</h2>
+                        </div>
+                    </div>
+            `;
+
+            // Iterate exercises
+            dayData.exercises.forEach((ex) => {
+                const isAestheticTag = ex.isAesthetic ? `<span class="ml-1 text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded uppercase font-bold">Ästhetik</span>` : '';
+                
+                html += `
+                    <div class="bg-darkBg border border-cardBorder rounded-xl p-3 space-y-2.5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-white flex items-center">${ex.name} ${isAestheticTag}</h3>
+                        </div>
+                `;
+
+                if (ex.isMain) {
+                    // MAIN LIFTS: AUTOMATIC WEIGHT CALCULATION
+                    const base1RM = userStats[ex.statKey];
+                    let calcPct = weekConfig.pct;
+                    if (ex.pctModifier) calcPct *= ex.pctModifier;
+
+                    const targetWeight = roundTo2_5(base1RM * calcPct);
+                    const targetSets = weekConfig.sets;
+                    const targetReps = weekConfig.reps;
+
+                    html += `
+                        <div class="bg-cardBg p-2 rounded-lg border border-cardBorder/60 flex justify-between items-center text-xs">
+                            <span class="text-gray-400">Automatische Vorgabe:</span>
+                            <span class="font-black text-amber-400 text-sm">${targetWeight} kg &times; ${targetReps} Reps</span>
+                            <span class="text-[10px] bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded font-mono">RPE ${weekConfig.rpe}</span>
+                        </div>
+                        <div class="space-y-1.5 pt-1">
+                    `;
+
+                    // Generate slots for each set
+                    for (let s = 1; s <= targetSets; s++) {
+                        const savedKey = `w${currentWeek}_${currentDay}_${ex.id}_s${s}`;
+                        const savedVal = workoutLog[savedKey] || { weight: targetWeight, reps: targetReps, done: false };
+
+                        html += `
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-400 font-mono w-10">Satz ${s}</span>
+                                <div class="flex-1 flex items-center gap-1.5">
+                                    <input type="number" step="0.5" id="${savedKey}_w" value="${savedVal.weight}" onchange="updateLog('${savedKey}')" class="w-16 bg-cardBg border border-cardBorder rounded-lg py-1 px-2 text-center text-white font-mono font-bold focus:border-amber-400 outline-none">
+                                    <span class="text-gray-500">kg</span>
+                                    <input type="number" id="${savedKey}_r" value="${savedVal.reps}" onchange="updateLog('${savedKey}')" class="w-12 bg-cardBg border border-cardBorder rounded-lg py-1 px-2 text-center text-white font-mono font-bold focus:border-amber-400 outline-none">
+                                    <span class="text-gray-500">reps</span>
+                                </div>
+                                <button onclick="toggleSetDone('${savedKey}')" id="btn_${savedKey}" class="w-8 h-8 rounded-lg ${savedVal.done ? 'bg-emerald-500 text-black' : 'bg-cardBg border border-cardBorder text-gray-500'} flex items-center justify-center transition active:scale-95">
+                                    <i class="fa-solid fa-check text-xs"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    html += `</div>`;
+
+                } else {
+                    // ASSISTANCE & HYPERTROPHY EXERCISES
+                    const numSets = ex.sets || 3;
+                    html += `
+                        <div class="flex justify-between items-center text-[11px] text-gray-400 pb-1">
+                            <span>Ziel: ${numSets} Sätze &times; ${ex.defaultReps} Reps</span>
+                            <span class="text-amber-400 font-semibold">${ex.targetNote}</span>
+                        </div>
+                        <div class="space-y-1.5">
+                    `;
+
+                    for (let s = 1; s <= numSets; s++) {
+                        const savedKey = `w${currentWeek}_${currentDay}_${ex.id}_s${s}`;
+                        const savedVal = workoutLog[savedKey] || { weight: '', reps: '', done: false };
+
+                        html += `
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-400 font-mono w-10">Satz ${s}</span>
+                                <div class="flex-1 flex items-center gap-1.5">
+                                    <input type="number" placeholder="kg" id="${savedKey}_w" value="${savedVal.weight}" onchange="updateLog('${savedKey}')" class="w-16 bg-cardBg border border-cardBorder rounded-lg py-1 px-2 text-center text-white font-mono font-bold focus:border-amber-400 outline-none placeholder:text-gray-600">
+                                    <span class="text-gray-500">kg</span>
+                                    <input type="number" placeholder="reps" id="${savedKey}_r" value="${savedVal.reps}" onchange="updateLog('${savedKey}')" class="w-12 bg-cardBg border border-cardBorder rounded-lg py-1 px-2 text-center text-white font-mono font-bold focus:border-amber-400 outline-none placeholder:text-gray-600">
+                                    <span class="text-gray-500">reps</span>
+                                </div>
+                                <button onclick="toggleSetDone('${savedKey}')" id="btn_${savedKey}" class="w-8 h-8 rounded-lg ${savedVal.done ? 'bg-emerald-500 text-black' : 'bg-cardBg border border-cardBorder text-gray-500'} flex items-center justify-center transition active:scale-95">
+                                    <i class="fa-solid fa-check text-xs"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    html += `</div>`;
+                }
+
+                html += `</div>`;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
         }
 
-        function setTimerSeconds(sec) {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-            timerSeconds = sec;
-            updateTimerDisplays();
-            document.getElementById('nav-timer-btn').innerText = "Start";
-            document.getElementById('modal-timer-play-btn').innerText = "Start";
+        // LOGGING UPDATES & LOCALSTORAGE
+        function updateLog(key) {
+            const wInput = document.getElementById(`${key}_w`);
+            const rInput = document.getElementById(`${key}_r`);
+            
+            if (!workoutLog[key]) workoutLog[key] = {};
+            if (wInput) workoutLog[key].weight = wInput.value;
+            if (rInput) workoutLog[key].reps = rInput.value;
+
+            saveToLocalStorage();
         }
 
-        function playTimerAlert() {
-            // Audio beeps using Web Audio API
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.value = 880; // A5
-                gain.gain.value = 0.3;
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.8);
-            } catch(e) {
-                console.log("Audio API not supported or blocked");
+        function toggleSetDone(key) {
+            if (!workoutLog[key]) workoutLog[key] = {};
+            workoutLog[key].done = !workoutLog[key].done;
+
+            // Also capture inputs
+            const wInput = document.getElementById(`${key}_w`);
+            const rInput = document.getElementById(`${key}_r`);
+            if (wInput) workoutLog[key].weight = wInput.value;
+            if (rInput) workoutLog[key].reps = rInput.value;
+
+            // UI Update
+            const btn = document.getElementById(`btn_${key}`);
+            if (btn) {
+                if (workoutLog[key].done) {
+                    btn.className = "w-8 h-8 rounded-lg bg-emerald-500 text-black flex items-center justify-center transition active:scale-95";
+                    // Auto trigger 90s timer for isos, 180s for mains
+                    if (key.includes('squat') || key.includes('bench') || key.includes('deadlift') || key.includes('pullup')) {
+                        setTimer(180);
+                    } else {
+                        setTimer(90);
+                    }
+                    toggleTimer();
+                } else {
+                    btn.className = "w-8 h-8 rounded-lg bg-cardBg border border-cardBorder text-gray-500 flex items-center justify-center transition active:scale-95";
+                }
+            }
+
+            saveToLocalStorage();
+        }
+
+        function saveCurrentWorkout() {
+            saveToLocalStorage();
+            alert("Training erfolgreich gespeichert!");
+        }
+
+        function resetCurrentDay() {
+            if (confirm("Möchtest du alle eingetragenen Sätze für diesen Tag zurücksetzen?")) {
+                const dayData = WORKOUT_PLAN[currentDay];
+                dayData.exercises.forEach(ex => {
+                    for (let s = 1; s <= 6; s++) {
+                        const key = `w${currentWeek}_${currentDay}_${ex.id}_s${s}`;
+                        delete workoutLog[key];
+                    }
+                });
+                saveToLocalStorage();
+                renderWorkout();
             }
         }
 
-        // Initialize on Load
+        function saveToLocalStorage() {
+            localStorage.setItem('apex_powerbuilding_log', JSON.stringify(workoutLog));
+            localStorage.setItem('apex_user_stats', JSON.stringify(userStats));
+            localStorage.setItem('apex_current_week', currentWeek);
+        }
+
+        function loadFromLocalStorage() {
+            const savedLog = localStorage.getItem('apex_powerbuilding_log');
+            if (savedLog) workoutLog = JSON.parse(savedLog);
+
+            const savedStats = localStorage.getItem('apex_user_stats');
+            if (savedStats) userStats = JSON.parse(savedStats);
+
+            const savedWeek = localStorage.getItem('apex_current_week');
+            if (savedWeek) {
+                currentWeek = parseInt(savedWeek);
+                document.getElementById('week-select').value = currentWeek;
+            }
+        }
+
+        // INITIALIZATION
         window.onload = function() {
-            calculate1RMs();
-            updateTimerDisplays();
+            loadFromLocalStorage();
+            renderWorkout();
+            updateTimerDisplay();
         };
     </script>
 </body>
