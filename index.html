@@ -18,7 +18,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 12px; max-width: 600px; margin: 0 auto; padding-bottom: 90px; }
         
-        /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 12px; }
         .logo-area { display: flex; align-items: center; gap: 10px; }
         .logo-icon { background: var(--accent); color: #000; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: bold; font-size: 18px; }
@@ -30,7 +29,6 @@
         .btn-icon { background: var(--card-bg); cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-icon:hover { border-color: var(--accent); }
 
-        /* Modal für 1RM Anpassung */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; }
         .modal-content h3 { margin-bottom: 15px; font-size: 16px; color: var(--accent); }
@@ -41,7 +39,6 @@
         .btn-primary { background: var(--accent); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; flex: 1; cursor: pointer; }
         .btn-secondary { background: var(--border); color: var(--text-main); border: none; padding: 10px; border-radius: 8px; font-weight: bold; flex: 1; cursor: pointer; }
 
-        /* Fortschritt Accordion */
         .progress-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; }
         .progress-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--accent); }
         .progress-body { margin-top: 10px; display: none; font-size: 12px; }
@@ -49,17 +46,14 @@
         .bar-container { background: var(--bg-color); border-radius: 6px; height: 8px; margin: 6px 0 10px 0; overflow: hidden; border: 1px solid var(--border); }
         .bar-fill { background: var(--accent); height: 100%; width: 0%; transition: width 0.5s ease; }
 
-        /* Tages-Navigation Tabs */
         .day-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
         .day-tab { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); padding: 10px 4px; border-radius: 8px; font-size: 11px; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.2s; }
         .day-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
-        /* Workout Sektion */
         .workout-container { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
         .week-indicator { font-size: 11px; text-transform: uppercase; color: var(--accent); font-weight: 800; letter-spacing: 1px; margin-bottom: 4px; }
         .workout-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 
-        /* Übungs-Karte */
         .exercise-card { background: var(--bg-color); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
         .ex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .ex-name { font-size: 14px; font-weight: 700; }
@@ -69,7 +63,6 @@
         .auto-target { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 6px; border-left: 3px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
         .auto-target span { color: var(--text-main); font-weight: bold; }
 
-        /* Set Zeilen */
         .set-row { display: grid; grid-template-columns: 50px 1fr 1fr 40px; gap: 6px; align-items: center; margin-bottom: 6px; }
         .set-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
         .set-input { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); padding: 6px; border-radius: 6px; text-align: center; font-size: 13px; width: 100%; outline: none; }
@@ -78,7 +71,6 @@
         .checkbox-container { display: flex; align-items: center; justify-content: center; }
         .set-check { width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer; }
 
-        /* Timer Bar Unten */
         .timer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; max-width: 600px; margin: 0 auto; z-index: 99; }
         .timer-display { font-size: 18px; font-weight: 800; font-family: monospace; color: var(--accent); }
         .timer-btns { display: flex; gap: 6px; }
@@ -88,7 +80,6 @@
 </head>
 <body>
 
-    <!-- Header -->
     <div class="header">
         <div class="logo-area">
             <div class="logo-icon">⚡</div>
@@ -112,7 +103,6 @@
         </div>
     </div>
 
-    <!-- Modal für 1RM Anpassung -->
     <div id="rmModal" class="modal">
         <div class="modal-content">
             <h3>Zyklus & 1RM-Werte aktualisieren</h3>
@@ -139,7 +129,6 @@
         </div>
     </div>
 
-    <!-- Fortschritt Accordion -->
     <div class="progress-box">
         <div class="progress-header" onclick="toggleProgress()">
             <span>📈 ZIEL-TRACKER (140 / 130 / 200 / +50)</span>
@@ -160,7 +149,6 @@
         </div>
     </div>
 
-    <!-- Tag Navigation -->
     <div class="day-tabs">
         <div class="day-tab active" onclick="switchDay(1)" id="tab1">Tag 1<br>Lower A</div>
         <div class="day-tab" onclick="switchDay(2)" id="tab2">Tag 2<br>Upper A</div>
@@ -168,14 +156,12 @@
         <div class="day-tab" onclick="switchDay(4)" id="tab4">Tag 4<br>Upper B</div>
     </div>
 
-    <!-- Workout Container -->
     <div class="workout-container">
         <div class="week-indicator" id="weekIndicatorDisplay">Woche 1: Akkumulation</div>
         <div class="workout-title" id="workoutTitle">Tag 1: Kniebeuge & Posteriore Kette</div>
         <div id="exerciseList"></div>
     </div>
 
-    <!-- Timer Bar -->
     <div class="timer-bar">
         <div>
             <div style="font-size: 10px; color: var(--text-muted);">SATZPAUSE TIMER</div>
@@ -202,26 +188,26 @@
 
         const workouts = {
             1: { title: "Tag 1: Lower A (Squat Fokus & Waden)", exercises: [
-                { name: "Kniebeuge (Squat)", type: "main", rmKey: "squat", sets: 3, rpe: "7.5", basePercent: [0.75, 0.78, 0.80] },
+                { name: "Kniebeuge (Squat)", type: "main", rmKey: "squat", sets: 3, rpe: "7.5", basePercent: [0.75, 0.78, 0.80], targetReps: "5" },
                 { name: "Beinpresse / Hackenschmidt", type: "iso", sets: 3, reps: "8-10 Wdh", rpe: "RPE 9" },
                 { name: "Beinbeuger sitzend", type: "iso", sets: 3, reps: "10-12 Wdh", rpe: "RPE 9", aesthetic: true },
                 { name: "Stehendes Wadenheben", type: "iso", sets: 4, reps: "8-10 Wdh", rpe: "RPE 9.5", aesthetic: true }
             ]},
             2: { title: "Tag 2: Upper A (Bench Fokus & Lat/Schulter)", exercises: [
-                { name: "Bankdrücken (Bench Press)", type: "main", rmKey: "bench", sets: 3, rpe: "7.5", basePercent: [0.75, 0.78, 0.80] },
-                { name: "Klimmzüge (Zusatzgewicht)", type: "main", rmKey: "pullup", sets: 3, rpe: "8", basePercent: [0.70, 0.75, 0.75] },
+                { name: "Bankdrücken (Bench Press)", type: "main", rmKey: "bench", sets: 3, rpe: "7.5", basePercent: [0.75, 0.78, 0.80], targetReps: "5" },
+                { name: "Klimmzüge (Zusatzgewicht)", type: "main", rmKey: "pullup", sets: 3, rpe: "8", basePercent: [0.70, 0.75, 0.75], targetReps: "6" },
                 { name: "Brustgestütztes Rudern", type: "iso", sets: 3, reps: "8-10 Wdh", rpe: "RPE 9", aesthetic: true },
                 { name: "Seitheben am Kabelzug", type: "iso", sets: 4, reps: "10-15 Wdh", rpe: "RPE 9.5", aesthetic: true },
                 { name: "Trizepsdrücken", type: "iso", sets: 3, reps: "10-12 Wdh", rpe: "RPE 9" }
             ]},
             3: { title: "Tag 3: Lower B (Deadlift Fokus & Hamstrings)", exercises: [
-                { name: "Kreuzheben (Deadlift)", type: "main", rmKey: "deadlift", sets: 3, rpe: "8", basePercent: [0.72, 0.76, 0.80] },
+                { name: "Kreuzheben (Deadlift)", type: "main", rmKey: "deadlift", sets: 3, rpe: "8", basePercent: [0.72, 0.76, 0.80], targetReps: "4" },
                 { name: "Bulgarian Split Squats", type: "iso", sets: 3, reps: "8-10 Wdh", rpe: "RPE 9" },
                 { name: "Beinstrecker", type: "iso", sets: 3, reps: "10-12 Wdh", rpe: "RPE 9" },
                 { name: "Stehendes Wadenheben", type: "iso", sets: 4, reps: "10-12 Wdh", rpe: "RPE 9.5", aesthetic: true }
             ]},
             4: { title: "Tag 4: Upper B (Paused Bench & Lat/Schulter)", exercises: [
-                { name: "Pause Bankdrücken (1-2s Stopp)", type: "main", rmKey: "bench", sets: 3, rpe: "7.5", basePercent: [0.70, 0.73, 0.75] },
+                { name: "Pause Bankdrücken (1-2s Stopp)", type: "main", rmKey: "bench", sets: 3, rpe: "7.5", basePercent: [0.70, 0.73, 0.75], targetReps: "5" },
                 { name: "Latzug enger Neutralgriff", type: "iso", sets: 3, reps: "8-10 Wdh", rpe: "RPE 9", aesthetic: true },
                 { name: "Hintere Schulter (Reverse Fly)", type: "iso", sets: 3, reps: "12-15 Wdh", rpe: "RPE 9.5", aesthetic: true },
                 { name: "Bizepscurls (Kabel / KH)", type: "iso", sets: 3, reps: "10-12 Wdh", rpe: "RPE 9", aesthetic: true },
@@ -294,11 +280,11 @@
             let weekMult = 1.0;
             if (currentWeek === 2) weekMult = 1.03;
             if (currentWeek === 3) weekMult = 1.06;
-            if (currentWeek === 4) weekMult = 0.80;
+            if (currentWeek === 4) weekMult = 0.80; // Deload
             if (currentWeek === 5) weekMult = 1.04;
             if (currentWeek === 6) weekMult = 1.08;
             if (currentWeek === 7) weekMult = 1.12;
-            if (currentWeek === 8) weekMult = 1.15;
+            if (currentWeek === 8) weekMult = 1.00; // Testwoche (nutzt 100% 1RM für Singles)
 
             wData.exercises.forEach((ex, idx) => {
                 let card = document.createElement('div');
@@ -308,29 +294,78 @@
                 if (ex.type === 'iso' && !ex.aesthetic) badgeHtml = `<span class="badge">ASSISTENZ</span>`;
 
                 let targetHtml = '';
+                let setsHtml = '';
+
                 if (ex.type === 'main') {
                     let baseVal = userRMs[ex.rmKey];
-                    let targetKg = Math.round((baseVal * ex.basePercent[0] * weekMult) / 2.5) * 2.5;
-                    targetHtml = `<div class="auto-target"><span>Vorgabe (Satz 1): <strong>${targetKg} kg</strong></span><span>RPE ${ex.rpe}</span></div>`;
-                } else {
-                    targetHtml = `<div class="auto-target"><span>Zielbereich: <strong>${ex.reps}</strong></span><span>${ex.rpe}</span></div>`;
-                }
+                    
+                    for (let s = 1; s <= ex.sets; s++) {
+                        let targetKg;
+                        let targetRepsVal = ex.targetReps;
+                        let rpeText = `RPE ${ex.rpe}`;
 
-                let setsHtml = '';
-                for (let s = 1; s <= ex.sets; s++) {
-                    setsHtml += `
-                        <div class="set-row">
-                            <span class="set-label">Satz ${s}</span>
-                            <input type="number" class="set-input" placeholder="kg">
-                            <input type="number" class="set-input" placeholder="reps">
-                            <div class="checkbox-container">
-                                <input type="checkbox" class="set-check" onclick="triggerTimer(3)">
+                        if (currentWeek === 8) {
+                            // Testwoche Logik (PR Versuch)
+                            if (s === 1) targetKg = baseVal;
+                            else if (s === 2) targetKg = Math.round((baseVal * 1.03) / 2.5) * 2.5;
+                            else targetKg = Math.round((baseVal * 1.05) / 2.5) * 2.5;
+                            targetRepsVal = "1";
+                            rpeText = "PR TEST";
+                        } else {
+                            let pct = ex.basePercent[s - 1] || ex.basePercent[0];
+                            targetKg = Math.round((baseVal * pct * weekMult) / 2.5) * 2.5;
+                        }
+
+                        if (s === 1) {
+                            targetHtml = `
+                                <div class="auto-target">
+                                    <span>Vorgabe (Satz 1): <strong>${targetKg} kg × ${targetRepsVal} Reps</strong></span>
+                                    <span>${rpeText}</span>
+                                </div>
+                            `;
+                        }
+
+                        setsHtml += `
+                            <div class="set-row">
+                                <span class="set-label">Satz ${s}</span>
+                                <input type="number" class="set-input" value="${targetKg}" id="d_${currentDay}_${idx}_s${s}_kg">
+                                <input type="number" class="set-icon set-input" value="${targetRepsVal}" id="d_${currentDay}_${idx}_s${s}_reps">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" class="set-check" onclick="triggerTimer(3)">
+                                </div>
                             </div>
+                        `;
+                    }
+                } else {
+                    targetHtml = `
+                        <div class="auto-target">
+                            <span>Zielbereich: <strong>${ex.reps}</strong></span>
+                            <span>${ex.rpe}</span>
                         </div>
                     `;
+
+                    for (let s = 1; s <= ex.sets; s++) {
+                        setsHtml += `
+                            <div class="set-row">
+                                <span class="set-label">Satz ${s}</span>
+                                <input type="number" class="set-input" placeholder="kg" id="d_${currentDay}_${idx}_s${s}_kg">
+                                <input type="number" class="set-input" placeholder="reps" id="d_${currentDay}_${idx}_s${s}_reps">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" class="set-check" onclick="triggerTimer(2)">
+                                </div>
+                            </div>
+                        `;
+                    }
                 }
 
-                card.innerHTML = `<div class="ex-header"><span class="ex-name">${idx + 1}. ${ex.name}</span>${badgeHtml}</div>${targetHtml}${setsHtml}`;
+                card.innerHTML = `
+                    <div class="ex-header">
+                        <span class="ex-name">${idx + 1}. ${ex.name}</span>
+                        ${badgeHtml}
+                    </div>
+                    ${targetHtml}
+                    ${setsHtml}
+                `;
                 container.appendChild(card);
             });
         }
